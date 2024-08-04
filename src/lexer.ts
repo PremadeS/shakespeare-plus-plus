@@ -25,26 +25,30 @@ const KEYWORDS: Record<string, TokenType> = {
   respectfully: TokenType.Respectfully,
 };
 // Creates Token
-function token(type: TokenType, value: String): Token {
+function token(type: TokenType, value: string): Token {
   return { value, type };
 }
 
-function isAlphabet(str: String) {
+function isAlphabet(str: string) {
   return str.toUpperCase() != str.toLowerCase();
 }
 
-function isInteger(str: string) {
-  const num = parseInt(str, 10);
-  return !isNaN(num) && num.toString() === str;
+function isNumber(str: string) {
+  return str >= "0" && str <= "9";
 }
-
-export function tokenize(source: String): Token[] {
+function isWhiteSpace(str: string) {
+  return str == " " || str == "\n" || str == "\t";
+}
+export function tokenize(source: string): Token[] {
   const tokens = new Array<Token>();
-  const src = source.split(/\s+/);
+  const src = source.split("");
   let pos = 0;
   while (pos < src.length) {
     // Single character tokens...
-    if (src[pos] == "(") {
+    if (isWhiteSpace(src[pos])) {
+      ++pos;
+      continue;
+    } else if (src[pos] == "(") {
       tokens.push(token(TokenType.OpenParen, src[pos]));
     } else if (src[pos] == ")") {
       tokens.push(token(TokenType.CloseParen, src[pos]));
@@ -52,21 +56,35 @@ export function tokenize(source: String): Token[] {
       tokens.push(token(TokenType.BinaryOperator, src[pos]));
     } else if (src[pos] == "=") {
       tokens.push(token(TokenType.Equals, src[pos]));
-    }
-    // Handle Multi-character tokens...
-    else if (isAlphabet(src[pos])) {
-      // Checking for reserved keywords....
-      let reserved = KEYWORDS[src[pos]];
-      if (reserved == undefined) {
-        tokens.push(token(TokenType.Identifier, src[pos]));
+    } //Multi character tokens...
+    else {
+      if (isAlphabet(src[pos])) {
+        let identifier: string = src[pos];
+        ++pos;
+        while (pos < src.length && isAlphabet(src[pos])) {
+          identifier += src[pos];
+          ++pos;
+        }
+        const reserved = KEYWORDS[identifier];
+        if (reserved != undefined) {
+          tokens.push(token(KEYWORDS[identifier], identifier));
+        } else {
+          tokens.push(token(TokenType.Identifier, identifier));
+        }
+        --pos;
+      } else if (isNumber(src[pos])) {
+        let num: string = src[pos];
+        ++pos;
+        while (pos < src.length && isNumber(src[pos])) {
+          num += src[pos];
+          ++pos;
+        }
+        tokens.push(token(TokenType.Number, num));
+        --pos;
       } else {
-        tokens.push(token(reserved, src[pos]));
+        console.error("Unanticipated token hath found: ", src[pos]);
+        process.exit(1);
       }
-    } else if (isInteger(src[pos])) {
-      tokens.push(token(TokenType.Number, src[pos]));
-    } else {
-      console.log("In: ", src[pos]);
-      throw new Error("Unrecognized Token Found");
     }
     ++pos;
   }
