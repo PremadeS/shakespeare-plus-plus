@@ -11,10 +11,11 @@ export enum TokenType {
   To,
   Beest,
   Respectfully,
+  EOF,
 }
 
 export interface Token {
-  value: String;
+  value: string;
   type: TokenType;
 }
 const KEYWORDS: Record<string, TokenType> = {
@@ -24,7 +25,8 @@ const KEYWORDS: Record<string, TokenType> = {
   beest: TokenType.Beest,
   respectfully: TokenType.Respectfully,
 };
-// Creates Token
+
+// Maketh Token
 function token(type: TokenType, value: string): Token {
   return { value, type };
 }
@@ -52,7 +54,7 @@ export function tokenize(source: string): Token[] {
       tokens.push(token(TokenType.OpenParen, src[pos]));
     } else if (src[pos] == ")") {
       tokens.push(token(TokenType.CloseParen, src[pos]));
-    } else if (src[pos] == "+" || src[pos] == "-" || src[pos] == "*" || src[pos] == "/") {
+    } else if (src[pos] == "+" || src[pos] == "-" || src[pos] == "*" || src[pos] == "/" || src[pos] == "%") {
       tokens.push(token(TokenType.BinaryOperator, src[pos]));
     } else if (src[pos] == "=") {
       tokens.push(token(TokenType.Equals, src[pos]));
@@ -88,14 +90,7 @@ export function tokenize(source: string): Token[] {
     }
     ++pos;
   }
-
+  // Endeth of fileth
+  tokens.push(token(TokenType.EOF, "EOF"));
   return tokens;
-}
-
-//Checketh
-const filePath = "./test.txt";
-const source = fs.readFileSync(filePath, "utf-8");
-
-for (const token of tokenize(source)) {
-  console.log(token);
 }

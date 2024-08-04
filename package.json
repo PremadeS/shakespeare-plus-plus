@@ -10,6 +10,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^22.1.0"
+    "@types/node": "^22.1.0",
+    "@types/prompt-sync": "^4.2.3",
+    "@types/readline-sync": "^1.4.8"
+  },
+  "dependencies": {
+    "prompt-sync": "^4.2.0",
+    "readline-sync": "^1.4.10"
   }
 }
