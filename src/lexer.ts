@@ -92,6 +92,7 @@ export function tokenize(source: string): Token[] {
   return tokens;
 }
 
+//Check
 const filePath = "./test.txt";
 const source = fs.readFileSync(filePath, "utf-8");
 
