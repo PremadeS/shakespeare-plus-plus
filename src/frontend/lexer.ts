@@ -24,6 +24,11 @@ const KEYWORDS: Record<string, TokenType> = {
   to: TokenType.To,
   beest: TokenType.Beest,
   respectfully: TokenType.Respectfully,
+  addethPolitelyWith: TokenType.BinaryOperator,
+  subtractethPolitelyWith: TokenType.BinaryOperator,
+  multiplethPolitelyWith: TokenType.BinaryOperator,
+  dividethPolitelyWith: TokenType.BinaryOperator,
+  modulethPolitelyWith: TokenType.BinaryOperator,
 };
 
 // Maketh Token
@@ -41,6 +46,26 @@ function isNumber(str: string) {
 function isWhiteSpace(str: string) {
   return str == " " || str == "\n" || str == "\t";
 }
+/*  +-----------------------------------------------------------------------+
+ *  |----- Converts identifier to equivalent BinaryOperator... -------------|
+ *  |----- if not an operator identifier, then returns the same string... --|
+ *  |----- Basically you have to write these instead of +, - ...etc --------|
+ *  +-----------------------------------------------------------------------+  */
+function convertethToOperator(str: string): string {
+  if (str == "addethPolitelyWith") {
+    return "+";
+  } else if (str == "subtractethPolitelyWith") {
+    return "-";
+  } else if (str == "multiplethPolitelyWith") {
+    return "*";
+  } else if (str == "dividethPolitelyWith") {
+    return "/";
+  } else if (str == "modulethPolitelyWith") {
+    return "%";
+  }
+  return str;
+}
+
 export function tokenize(source: string): Token[] {
   const tokens = new Array<Token>();
   const src = source.split("");
@@ -54,8 +79,6 @@ export function tokenize(source: string): Token[] {
       tokens.push(token(TokenType.OpenParen, src[pos]));
     } else if (src[pos] == ")") {
       tokens.push(token(TokenType.CloseParen, src[pos]));
-    } else if (src[pos] == "+" || src[pos] == "-" || src[pos] == "*" || src[pos] == "/" || src[pos] == "%") {
-      tokens.push(token(TokenType.BinaryOperator, src[pos]));
     } else if (src[pos] == "=") {
       tokens.push(token(TokenType.Equals, src[pos]));
     } //Multi character tokens...
@@ -69,7 +92,7 @@ export function tokenize(source: string): Token[] {
         }
         const reserved = KEYWORDS[identifier];
         if (reserved != undefined) {
-          tokens.push(token(KEYWORDS[identifier], identifier));
+          tokens.push(token(KEYWORDS[identifier], convertethToOperator(identifier)));
         } else {
           tokens.push(token(TokenType.Identifier, identifier));
         }
