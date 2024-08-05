@@ -2,15 +2,16 @@ import * as fs from "fs";
 export enum TokenType {
   Number,
   BinaryOperator,
-  Equals,
   Identifier,
   OpenParen,
   CloseParen,
-  Alloweth,
-  Thy,
-  To,
-  Beest,
-  Respectfully,
+
+  Const,
+  Granteth,
+  Yonder,
+  Equals,
+  Terminator, //Statement terminator...
+
   EOF,
 }
 
@@ -19,18 +20,17 @@ export interface Token {
   type: TokenType;
 }
 
-/** TODO: change syntax to granteh yonder x to beest 10 with utmost respect */
 const KEYWORDS: Record<string, TokenType> = {
-  alloweth: TokenType.Alloweth,
-  thy: TokenType.Thy,
-  to: TokenType.To,
-  beest: TokenType.Beest,
-  respectfully: TokenType.Respectfully,
+  granteth: TokenType.Granteth,
+  yonder: TokenType.Yonder,
+  equivalethTo: TokenType.Equals, //                      =
+  withUtmostRespect: TokenType.Terminator, //             ;
   addethPolitelyWith: TokenType.BinaryOperator, //        +
   subtractethPolitelyWith: TokenType.BinaryOperator, //   -
   multiplethPolitelyWith: TokenType.BinaryOperator, //    *
   dividethPolitelyWith: TokenType.BinaryOperator, //      /
   modulethPolitelyWith: TokenType.BinaryOperator, //      %
+  steadFast: TokenType.Const, // constant
 };
 
 // Maketh Token
@@ -49,11 +49,11 @@ function isWhiteSpace(str: string) {
   return str == " " || str == "\n" || str == "\t";
 }
 /*  +-----------------------------------------------------------------------+
- *  |----- Converts identifier to equivalent BinaryOperator... -------------|
+ *  |----- Converts identifier to a simpler keyword/symbol... ---------------------|
  *  |----- if not an operator identifier, then returns the same string... --|
  *  |----- Basically you have to write these instead of +, - ...etc --------|
  *  +-----------------------------------------------------------------------+  */
-function convertethToOperator(str: string): string {
+function translateOperation(str: string): string {
   if (str == "addethPolitelyWith") {
     return "+";
   } else if (str == "subtractethPolitelyWith") {
@@ -64,6 +64,12 @@ function convertethToOperator(str: string): string {
     return "/";
   } else if (str == "modulethPolitelyWith") {
     return "%";
+  } else if (str == "equivalethTo") {
+    return "=";
+  } else if (str == "withUtmostRespect") {
+    return ";";
+  } else if (str == "steadFast") {
+    return "const";
   }
   return str;
 }
@@ -81,8 +87,6 @@ export function tokenize(source: string): Token[] {
       tokens.push(token(TokenType.OpenParen, src[pos]));
     } else if (src[pos] == ")") {
       tokens.push(token(TokenType.CloseParen, src[pos]));
-    } else if (src[pos] == "=") {
-      tokens.push(token(TokenType.Equals, src[pos]));
     } //Multi character tokens...
     else {
       if (isAlphabet(src[pos])) {
@@ -94,7 +98,7 @@ export function tokenize(source: string): Token[] {
         }
         const reserved = KEYWORDS[identifier];
         if (reserved != undefined) {
-          tokens.push(token(KEYWORDS[identifier], convertethToOperator(identifier)));
+          tokens.push(token(KEYWORDS[identifier], translateOperation(identifier)));
         } else {
           tokens.push(token(TokenType.Identifier, identifier));
         }

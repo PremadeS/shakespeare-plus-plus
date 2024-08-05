@@ -1,4 +1,4 @@
-import { Stmt, Program, Expr, BinaryExpr, Identifier, NumericLiteral } from "./ast";
+import { Stmt, Program, Expr, BinaryExpr, Identifier, NumericLiteral, VarDeclaration } from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
 export default class Parser {
@@ -28,7 +28,7 @@ export default class Parser {
       console.error(
         "Parser’s blunder!: ",
         err,
-        "\nBehold, the type that came before:: ",
+        "\nBehold, the type that hath appeared: ",
         prev,
         "Anticipating type:",
         type
@@ -60,8 +60,46 @@ export default class Parser {
   }
 
   private parseStmt(): Stmt {
-    // Currently nay statements to parse... Skipping to expressions...
-    return this.parseAdditiveExpr();
+    switch (this.at().type) {
+      case TokenType.Granteth:
+      case TokenType.Const:
+        return this.parseVarDeclaration();
+
+      default:
+        return this.parseAdditiveExpr();
+    }
+  }
+
+  // granteth yonder *identifier* equivalethTo *value* withUtmostRespect
+  private parseVarDeclaration(): Stmt {
+    const isConstant: boolean = this.next().type == TokenType.Const;
+    this.expect(TokenType.Yonder, "Syntax mistake forgetting 'yonder' respectfully");
+
+    const identifer = this.expect(
+      TokenType.Identifier,
+      "Syntax mistake forgetting 'identifier / variable name' respectfully."
+    ).value;
+
+    if (this.at().type == TokenType.Terminator) {
+      if (isConstant) {
+        throw new Error("Thou must bestoweth value upon yond steadfast variable respectfully.");
+      }
+      this.next(); // Skipping terminator...
+      return { kind: "VarDeclaration", constant: false, identifier: identifer } as VarDeclaration;
+    }
+
+    this.expect(TokenType.Equals, "Syntax mistake forgetting 'equivalethTo' respectfully");
+
+    const declaration = {
+      kind: "VarDeclaration",
+      constant: isConstant,
+      identifier: identifer,
+      value: this.parseStmt(),
+    } as VarDeclaration;
+
+    this.expect(TokenType.Terminator, "Syntax mistake forgetting 'withUtmostRespect' respectfully");
+
+    return declaration;
   }
 
   private parseAdditiveExpr(): Expr {

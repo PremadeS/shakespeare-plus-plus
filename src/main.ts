@@ -11,15 +11,15 @@ repl();
 
 async function repl() {
   console.log("\nRepl v0.1");
+  const env = new Environment();
+  env.declareVar("x", makeNum(100), false);
+  env.declareVar("y", makeNum(50), false);
+  env.declareVar("asTrueAsTheLightOfDay", makeBool(true), true); //   True...
+  env.declareVar("asFalseAsAFlimsyFabric", makeBool(false), true); // False...
+  env.declareVar("asHollowAsAFoolsHead", makeNull(), true); //        Null...
+
   while (true) {
     const input: string = readLineSync.question("~swagger~ ");
-    const env = new Environment();
-
-    env.declareVar("x", makeNum(100));
-    env.declareVar("y", makeNum(50));
-    env.declareVar("asTrueAsTheLightOfDay", makeBool(true)); //   True...
-    env.declareVar("asFalseAsAFlimsyFabric", makeBool(false)); // False...
-    env.declareVar("asHollowAsAFoolsHead", makeNull()); //        Null...
 
     if (!input || input.includes("exit")) {
       process.exit(1);
