@@ -1,6 +1,5 @@
 import * as fs from "fs";
 export enum TokenType {
-  Null,
   Number,
   BinaryOperator,
   Equals,
@@ -32,7 +31,6 @@ const KEYWORDS: Record<string, TokenType> = {
   multiplethPolitelyWith: TokenType.BinaryOperator, //    *
   dividethPolitelyWith: TokenType.BinaryOperator, //      /
   modulethPolitelyWith: TokenType.BinaryOperator, //      %
-  hollowAsAFoolsHead: TokenType.Null, //                  Null
 };
 
 // Maketh Token

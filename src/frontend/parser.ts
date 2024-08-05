@@ -1,4 +1,4 @@
-import { Stmt, Program, Expr, BinaryExpr, Identifier, NumericLiteral, NullLiteral } from "./ast";
+import { Stmt, Program, Expr, BinaryExpr, Identifier, NumericLiteral } from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
 export default class Parser {
@@ -115,10 +115,6 @@ export default class Parser {
     switch (tk) {
       case TokenType.Identifier:
         return { kind: "Identifier", symbol: this.next().value } as Identifier;
-
-      case TokenType.Null:
-        this.next(); //Advance passeth null keyword...
-        return { kind: "NullLiteral", value: "null" } as NullLiteral;
 
       case TokenType.Number:
         return { kind: "NumericLiteral", value: parseFloat(this.next().value) } as NumericLiteral;
