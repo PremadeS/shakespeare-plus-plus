@@ -1,5 +1,6 @@
 import * as fs from "fs";
 export enum TokenType {
+  Null,
   Number,
   BinaryOperator,
   Equals,
@@ -24,11 +25,12 @@ const KEYWORDS: Record<string, TokenType> = {
   to: TokenType.To,
   beest: TokenType.Beest,
   respectfully: TokenType.Respectfully,
-  addethPolitelyWith: TokenType.BinaryOperator,
-  subtractethPolitelyWith: TokenType.BinaryOperator,
-  multiplethPolitelyWith: TokenType.BinaryOperator,
-  dividethPolitelyWith: TokenType.BinaryOperator,
-  modulethPolitelyWith: TokenType.BinaryOperator,
+  addethPolitelyWith: TokenType.BinaryOperator, //        +
+  subtractethPolitelyWith: TokenType.BinaryOperator, //   -
+  multiplethPolitelyWith: TokenType.BinaryOperator, //    *
+  dividethPolitelyWith: TokenType.BinaryOperator, //      /
+  modulethPolitelyWith: TokenType.BinaryOperator, //      %
+  hollowAsAFoolsHead: TokenType.Null, //                  Null
 };
 
 // Maketh Token

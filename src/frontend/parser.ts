@@ -1,4 +1,4 @@
-import { Stmt, Program, Expr, BinaryExpr, Identifier, NumericLiteral } from "./ast";
+import { Stmt, Program, Expr, BinaryExpr, Identifier, NumericLiteral, NullLiteral } from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
 export default class Parser {
@@ -100,17 +100,29 @@ export default class Parser {
   private parsePrimaryExpr(): Expr {
     const tk = this.at().type;
 
+    /*  +--------------------------------------+
+     *  |--- Determine the current token... ---|
+     *  |--- and return the literal... --------|
+     *  +--------------------------------------+  */
+
     switch (tk) {
       case TokenType.Identifier:
         return { kind: "Identifier", symbol: this.next().value } as Identifier;
+
+      case TokenType.Null:
+        this.next(); //Advance passeth null keyword...
+        return { kind: "NullLiteral", value: "null" } as NullLiteral;
+
       case TokenType.Number:
         return { kind: "NumericLiteral", value: parseFloat(this.next().value) } as NumericLiteral;
+
       case TokenType.OpenParen: {
         this.next();
         const val = this.parseStmt();
         this.expect(TokenType.CloseParen, "Closing Parenthesis ')' not hath found");
         return val;
       }
+
       default:
         console.error("Unanticipated Token hath found at parser: ", this.at());
         process.exit(1);
