@@ -25,7 +25,14 @@ export default class Parser {
     const prev: Token = this.at();
 
     if (!prev || prev.type != type) {
-      console.error("Parser Error:", err, "\nPrevious: ", prev, "Anticipating type:", type);
+      console.error(
+        "Parser’s blunder!: ",
+        err,
+        "\nBehold, the type that came before:: ",
+        prev,
+        "Anticipating type:",
+        type
+      );
       process.exit(1);
     }
 
@@ -119,12 +126,12 @@ export default class Parser {
       case TokenType.OpenParen: {
         this.next();
         const val = this.parseStmt();
-        this.expect(TokenType.CloseParen, "Closing Parenthesis ')' not hath found");
+        this.expect(TokenType.CloseParen, "Alas, the closing parenthesis ')' doth play hide and seek!");
         return val;
       }
 
       default:
-        console.error("Unanticipated Token hath found at parser: ", this.at());
+        console.error("By my troth, an unbidden Token hath sprung upon the parser!: ", this.at());
         process.exit(1);
     }
   }

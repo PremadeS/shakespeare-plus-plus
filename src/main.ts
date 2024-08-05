@@ -1,5 +1,6 @@
 import { Program } from "./frontend/ast";
 import Parser from "./frontend/parser";
+import { interpret } from "./runtime/interpreter";
 import * as readLineSync from "readline-sync";
 
 const parser = new Parser();
@@ -14,9 +15,10 @@ async function repl() {
     if (!input || input.includes("exit")) {
       process.exit(1);
     }
+    // Parse...
     let program: Program = parser.produceAST(input);
 
-    // Print in readable format...
-    console.log(JSON.stringify(program, null, 2));
+    // Interpret...
+    console.log(interpret(program));
   }
 }

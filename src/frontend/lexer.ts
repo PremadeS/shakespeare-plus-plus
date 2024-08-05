@@ -19,6 +19,8 @@ export interface Token {
   value: string;
   type: TokenType;
 }
+
+/** TODO: change syntax to granteh yonder x to beest 10 with utmost respect */
 const KEYWORDS: Record<string, TokenType> = {
   alloweth: TokenType.Alloweth,
   thy: TokenType.Thy,
@@ -109,7 +111,7 @@ export function tokenize(source: string): Token[] {
         tokens.push(token(TokenType.Number, num));
         --pos;
       } else {
-        console.error("Unanticipated token hath found: ", src[pos]);
+        console.error("Unseen token hath appeared: ", src[pos]);
         process.exit(1);
       }
     }
