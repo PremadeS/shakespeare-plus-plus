@@ -1,8 +1,17 @@
 import { ValueType, RuntimeVal, NumVal, NullVal } from "./values";
-import { NodeType, NumericLiteral, Stmt, BinaryExpr, Program, Identifier, VarDeclaration } from "../frontend/ast";
+import {
+  NodeType,
+  NumericLiteral,
+  Stmt,
+  BinaryExpr,
+  Program,
+  Identifier,
+  VarDeclaration,
+  AssignmentExpr,
+} from "../frontend/ast";
 import Environment from "./environment";
 import { interpretProgram, interpretVarDeclaration } from "./eval/statements";
-import { evalIdentifier, interpretBinaryExpr } from "./eval/expressions";
+import { evalIdentifier, interpretAssignment, interpretBinaryExpr } from "./eval/expressions";
 
 export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
@@ -14,6 +23,9 @@ export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
 
     case "BinaryExpr":
       return interpretBinaryExpr(astNode as BinaryExpr, env);
+
+    case "AssignmentExpr":
+      return interpretAssignment(astNode as AssignmentExpr, env);
 
     case "Program":
       return interpretProgram(astNode as Program, env);

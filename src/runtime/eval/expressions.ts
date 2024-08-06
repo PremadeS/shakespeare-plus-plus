@@ -1,4 +1,4 @@
-import { BinaryExpr, Identifier } from "../../frontend/ast";
+import { AssignmentExpr, BinaryExpr, Identifier } from "../../frontend/ast";
 import Environment from "../environment";
 import { interpret } from "../interpreter";
 import { NullVal, NumVal, RuntimeVal } from "../values";
@@ -45,4 +45,15 @@ export function interpretBinaryExpr(binop: BinaryExpr, env: Environment): Runtim
   }
 
   return { type: "null", value: "null" } as NullVal;
+}
+
+export function interpretAssignment(node: AssignmentExpr, env: Environment): RuntimeVal {
+  if (node.assignee.kind !== "Identifier") {
+    throw new Error(
+      `Thou hath committed an unworthy deed: an invalid assignation unto ${JSON.stringify(node.assignee)}.`
+    );
+  }
+
+  const varName: string = (node.assignee as Identifier).symbol;
+  return env.assignVar(varName, interpret(node.value, env));
 }

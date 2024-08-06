@@ -1,4 +1,4 @@
-import { Stmt, Program, Expr, BinaryExpr, Identifier, NumericLiteral, VarDeclaration } from "./ast";
+import { Stmt, Program, Expr, BinaryExpr, Identifier, NumericLiteral, VarDeclaration, AssignmentExpr } from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
 export default class Parser {
@@ -66,7 +66,7 @@ export default class Parser {
         return this.parseVarDeclaration();
 
       default:
-        return this.parseAdditiveExpr();
+        return this.parseAssignmentExpr();
     }
   }
 
@@ -100,6 +100,17 @@ export default class Parser {
     this.expect(TokenType.Terminator, "Syntax mistake forgetting 'withUtmostRespect' respectfully");
 
     return declaration;
+  }
+
+  private parseAssignmentExpr(): Expr {
+    const lhs = this.parseAdditiveExpr();
+    if (this.at().type == TokenType.Equals) {
+      this.next();
+      const rhs = this.parseAssignmentExpr();
+      return { kind: "AssignmentExpr", assignee: lhs, value: rhs } as AssignmentExpr;
+    }
+
+    return lhs;
   }
 
   private parseAdditiveExpr(): Expr {

@@ -11,11 +11,9 @@ export default class Environment {
     this.constants = new Set();
   }
 
-  // TODO: change error statments to shakesperean ones...
-
   public declareVar(varName: string, value: RuntimeVal, constant: boolean): RuntimeVal {
     if (this.variables.has(varName)) {
-      throw new Error(`cannot declare variable '${varName}' it is already defined`);
+      throw new Error(`Thou canst not declareth yond variable, ${varName} for it hath been already ordained.`);
     }
     if (constant) {
       this.constants.add(varName);
@@ -29,7 +27,7 @@ export default class Environment {
     const env = this.resolve(varName);
 
     if (env.constants.has(varName)) {
-      throw new Error(`cannot re-assign value to constant variable ${varName}`);
+      throw new Error(`Thou canst not reassign value to yond steadfast(const) variable. ${varName}`);
     }
 
     env.variables.set(varName, value);
@@ -47,7 +45,7 @@ export default class Environment {
     }
 
     if (this.parent == undefined) {
-      throw new Error(`cannot resolve variable name ${varName}`);
+      throw new Error(`Thou canst not resolve yond variable's name. ${varName}`);
     }
 
     return this.parent.resolve(varName);
