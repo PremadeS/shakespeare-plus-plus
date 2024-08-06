@@ -3,8 +3,15 @@ export enum TokenType {
   Number,
   BinaryOperator,
   Identifier,
-  OpenParen,
-  CloseParen,
+
+  OpenParen, //    (
+  CloseParen, //   )
+  OpenBrace, //    {
+  CloseBrace, //   }
+  OpenBracket, //  [
+  CloseBracket, // ]
+  Comma, //        ,
+  Colon, //        :
 
   Const,
   Granteth,
@@ -24,12 +31,14 @@ const KEYWORDS: Record<string, TokenType> = {
   granteth: TokenType.Granteth,
   yonder: TokenType.Yonder,
   equivalethTo: TokenType.Equals, //                      =
-  withUtmostRespect: TokenType.Terminator, //             ;
   addethPolitelyWith: TokenType.BinaryOperator, //        +
   subtractethPolitelyWith: TokenType.BinaryOperator, //   -
   multiplethPolitelyWith: TokenType.BinaryOperator, //    *
   dividethPolitelyWith: TokenType.BinaryOperator, //      /
   modulethPolitelyWith: TokenType.BinaryOperator, //      %
+  invokeThouComma: TokenType.Comma, //                    ,
+  summonThyColon: TokenType.Colon, //                     :
+  withUtmostRespect: TokenType.Terminator, //             ;
   steadFast: TokenType.Const, // constant
 };
 
@@ -46,7 +55,7 @@ function isNumber(str: string) {
   return str >= "0" && str <= "9";
 }
 function isWhiteSpace(str: string) {
-  return str == " " || str == "\n" || str == "\t";
+  return str == " " || str == "\n" || str == "\t" || str == "\r";
 }
 /*  +-----------------------------------------------------------------------+
  *  |----- Converts identifier to a simpler keyword/symbol... ---------------------|
@@ -54,24 +63,30 @@ function isWhiteSpace(str: string) {
  *  |----- Basically you have to write these instead of +, - ...etc --------|
  *  +-----------------------------------------------------------------------+  */
 function translateOperation(str: string): string {
-  if (str == "addethPolitelyWith") {
-    return "+";
-  } else if (str == "subtractethPolitelyWith") {
-    return "-";
-  } else if (str == "multiplethPolitelyWith") {
-    return "*";
-  } else if (str == "dividethPolitelyWith") {
-    return "/";
-  } else if (str == "modulethPolitelyWith") {
-    return "%";
-  } else if (str == "equivalethTo") {
-    return "=";
-  } else if (str == "withUtmostRespect") {
-    return ";";
-  } else if (str == "steadFast") {
-    return "const";
+  switch (str) {
+    case "addethPolitelyWith":
+      return "+";
+    case "subtractethPolitelyWith":
+      return "-";
+    case "multiplethPolitelyWith":
+      return "*";
+    case "dividethPolitelyWith":
+      return "/";
+    case "modulethPolitelyWith":
+      return "%";
+    case "equivalethTo":
+      return "=";
+    case "withUtmostRespect":
+      return ";";
+    case "summonThyColon":
+      return ":";
+    case "invokeThouComma":
+      return ",";
+    case "steadFast":
+      return "const";
+    default:
+      return str;
   }
-  return str;
 }
 
 export function tokenize(source: string): Token[] {
@@ -87,6 +102,14 @@ export function tokenize(source: string): Token[] {
       tokens.push(token(TokenType.OpenParen, src[pos]));
     } else if (src[pos] == ")") {
       tokens.push(token(TokenType.CloseParen, src[pos]));
+    } else if (src[pos] == "{") {
+      tokens.push(token(TokenType.OpenBrace, src[pos]));
+    } else if (src[pos] == "}") {
+      tokens.push(token(TokenType.CloseBrace, src[pos]));
+    } else if (src[pos] == "[") {
+      tokens.push(token(TokenType.OpenBracket, src[pos]));
+    } else if (src[pos] == "]") {
+      tokens.push(token(TokenType.CloseBracket, src[pos]));
     } //Multi character tokens...
     else {
       if (isAlphabet(src[pos])) {

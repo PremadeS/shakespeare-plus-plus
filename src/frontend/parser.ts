@@ -1,4 +1,15 @@
-import { Stmt, Program, Expr, BinaryExpr, Identifier, NumericLiteral, VarDeclaration, AssignmentExpr } from "./ast";
+import {
+  Stmt,
+  Program,
+  Expr,
+  BinaryExpr,
+  Identifier,
+  NumericLiteral,
+  VarDeclaration,
+  AssignmentExpr,
+  Property,
+  ObjectLiteral,
+} from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
 export default class Parser {
@@ -66,7 +77,7 @@ export default class Parser {
         return this.parseVarDeclaration();
 
       default:
-        return this.parseAssignmentExpr();
+        return this.parseExpr();
     }
   }
 
@@ -103,7 +114,7 @@ export default class Parser {
   }
 
   private parseAssignmentExpr(): Expr {
-    const lhs = this.parseAdditiveExpr();
+    const lhs = this.parseObjectExpr();
     if (this.at().type == TokenType.Equals) {
       this.next();
       const rhs = this.parseAssignmentExpr();
@@ -111,6 +122,43 @@ export default class Parser {
     }
 
     return lhs;
+  }
+
+  private parseObjectExpr(): Expr {
+    if (this.at().type != TokenType.OpenBrace) {
+      return this.parseAdditiveExpr();
+    }
+
+    this.next();
+    const properties = new Array<Property>();
+
+    while (!this.eof() && this.at().type != TokenType.CloseBrace) {
+      const key = this.expect(TokenType.Identifier, "Syntax mistake forgetting 'Identifier' respectfully").value;
+
+      // { key, }
+      if (this.at().type == TokenType.Comma) {
+        this.next();
+        properties.push({ kind: "Property", key });
+        continue;
+        // { key }
+      } else if (this.at().type == TokenType.CloseBrace) {
+        this.next();
+        properties.push({ kind: "Property", key });
+        continue;
+      }
+
+      // {key: val}
+      this.expect(TokenType.Colon, "Syntax mistake forgetting 'summonThyColon' respectfully");
+      const value = this.parseExpr();
+
+      properties.push({ kind: "Property", key, value });
+      if (this.at().type != TokenType.CloseBrace) {
+        this.expect(TokenType.Comma, "Syntax mistake forgetting 'invokeThouComma' OR '}' respectfully");
+      }
+    }
+
+    this.expect(TokenType.CloseBrace, "Syntax mistake forgetting '}' respectfully");
+    return { kind: "ObjectLiteral", properties: properties } as ObjectLiteral;
   }
 
   private parseAdditiveExpr(): Expr {
@@ -150,7 +198,7 @@ export default class Parser {
   }
 
   private parseExpr(): Expr {
-    return this.parsePrimaryExpr();
+    return this.parseAssignmentExpr();
   }
 
   private parsePrimaryExpr(): Expr {

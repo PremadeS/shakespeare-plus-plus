@@ -1,22 +1,30 @@
 import { Program } from "./frontend/ast";
 import Parser from "./frontend/parser";
-import Environment from "./runtime/environment";
+import Environment, { createGlobalEnv } from "./runtime/environment";
 import { interpret } from "./runtime/interpreter";
-import { NumVal, makeNull, makeBool, makeNum } from "./runtime/values";
 import * as readLineSync from "readline-sync";
+import { readFileSync } from "fs";
 
-const parser = new Parser();
+run();
 
-repl();
+async function run() {
+  const parser = new Parser();
+  const env = createGlobalEnv();
 
-async function repl() {
+  const input = readFileSync("test.txt", "utf-8");
+
+  // Parse...
+  let program: Program = parser.produceAST(input);
+
+  // Interpret...
+  let inter = interpret(program, env);
+  console.log(inter);
+}
+
+function repl() {
   console.log("\nRepl v0.1");
-  const env = new Environment();
-  env.declareVar("x", makeNum(100), false);
-  env.declareVar("y", makeNum(50), false);
-  env.declareVar("asTrueAsTheLightOfDay", makeBool(true), true); //   True...
-  env.declareVar("asFalseAsAFlimsyFabric", makeBool(false), true); // False...
-  env.declareVar("asHollowAsAFoolsHead", makeNull(), true); //        Null...
+  const parser = new Parser();
+  const env = createGlobalEnv();
 
   while (true) {
     const input: string = readLineSync.question("~swagger~ ");
@@ -28,6 +36,7 @@ async function repl() {
     let program: Program = parser.produceAST(input);
 
     // Interpret...
-    console.log(interpret(program, env));
+    let inter = interpret(program, env);
+    console.log(inter);
   }
 }

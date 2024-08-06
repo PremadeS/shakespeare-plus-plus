@@ -1,7 +1,7 @@
-import { AssignmentExpr, BinaryExpr, Identifier } from "../../frontend/ast";
+import { AssignmentExpr, BinaryExpr, Identifier, ObjectLiteral } from "../../frontend/ast";
 import Environment from "../environment";
 import { interpret } from "../interpreter";
-import { NullVal, NumVal, RuntimeVal } from "../values";
+import { NullVal, NumVal, ObjectVal, RuntimeVal } from "../values";
 
 function evalNumBinaryExpr(left: NumVal, right: NumVal, operator: string): NumVal {
   let result: number = 0;
@@ -34,6 +34,17 @@ function evalNumBinaryExpr(left: NumVal, right: NumVal, operator: string): NumVa
 export function evalIdentifier(identifer: Identifier, env: Environment): RuntimeVal {
   const val = env.lookupVar(identifer.symbol);
   return val;
+}
+
+export function evalObjectExpr(obj: ObjectLiteral, env: Environment): RuntimeVal {
+  const object = { type: "object", properties: new Map() } as ObjectVal;
+
+  for (const { key, value } of obj.properties) {
+    const runTimeVal = value == undefined ? env.lookupVar(key) : interpret(value, env);
+    object.properties.set(key, runTimeVal);
+  }
+
+  return object;
 }
 
 export function interpretBinaryExpr(binop: BinaryExpr, env: Environment): RuntimeVal {

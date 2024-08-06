@@ -1,4 +1,4 @@
-export type ValueType = "null" | "number" | "boolean";
+export type ValueType = "null" | "number" | "boolean" | "object";
 
 export interface RuntimeVal {
   type: ValueType;
@@ -29,4 +29,10 @@ export interface BoolVal extends RuntimeVal {
 }
 export function makeBool(b = true): RuntimeVal {
   return { type: "boolean", value: b } as BoolVal;
+}
+
+//Object
+export interface ObjectVal extends RuntimeVal {
+  type: "object";
+  properties: Map<string, RuntimeVal>;
 }

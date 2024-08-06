@@ -1,4 +1,15 @@
-import { RuntimeVal } from "./values";
+import { RuntimeVal, makeBool, makeNull, makeNum } from "./values";
+
+export function createGlobalEnv(): Environment {
+  const env = new Environment();
+  env.declareVar("x", makeNum(100), false);
+  env.declareVar("y", makeNum(50), false);
+  env.declareVar("asTrueAsTheLightOfDay", makeBool(true), true); //   True...
+  env.declareVar("asFalseAsAFlimsyFabric", makeBool(false), true); // False...
+  env.declareVar("asHollowAsAFoolsHead", makeNull(), true); //        Null...
+
+  return env;
+}
 
 export default class Environment {
   private parent?: Environment;

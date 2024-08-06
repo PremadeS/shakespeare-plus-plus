@@ -8,10 +8,11 @@ import {
   Identifier,
   VarDeclaration,
   AssignmentExpr,
+  ObjectLiteral,
 } from "../frontend/ast";
 import Environment from "./environment";
 import { interpretProgram, interpretVarDeclaration } from "./eval/statements";
-import { evalIdentifier, interpretAssignment, interpretBinaryExpr } from "./eval/expressions";
+import { evalIdentifier, evalObjectExpr, interpretAssignment, interpretBinaryExpr } from "./eval/expressions";
 
 export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
@@ -20,6 +21,9 @@ export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
 
     case "Identifier":
       return evalIdentifier(astNode as Identifier, env);
+
+    case "ObjectLiteral":
+      return evalObjectExpr(astNode as ObjectLiteral, env);
 
     case "BinaryExpr":
       return interpretBinaryExpr(astNode as BinaryExpr, env);
