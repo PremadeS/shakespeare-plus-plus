@@ -9,9 +9,21 @@ import {
   AssignmentExpr,
   Property,
   ObjectLiteral,
+  CallExpr,
+  MemberExpr,
 } from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
+/** =====================================================+
+ *---- Order Of Precedence... ----                       |
+ * Assignment                 <--- Lowest Precedence...  |
+ * Object                                                |
+ * AdditiveExpr                                          |
+ * MultiplicativeExpr                                    |
+ * Call                                                  |
+ * Member                                                |
+ * PrimaryExpr                <--- Highest Precedence... |
+ ** =====================================================+     */
 export default class Parser {
   private tokens: Token[] = [];
   private pos: number = 0;
@@ -113,6 +125,10 @@ export default class Parser {
     return declaration;
   }
 
+  private parseExpr(): Expr {
+    return this.parseAssignmentExpr();
+  }
+
   private parseAssignmentExpr(): Expr {
     const lhs = this.parseObjectExpr();
     if (this.at().type == TokenType.Equals) {
@@ -180,12 +196,11 @@ export default class Parser {
   }
 
   private parseMultiplicativeExpr(): Expr {
-    let left = this.parsePrimaryExpr();
+    let left = this.parseCallMemberExpr();
 
-    /**-----  Will change when changing syntax... but keep for now... -----*/
     while (this.at().value == "*" || this.at().value == "/" || this.at().value == "%") {
       const operator = this.next().value;
-      const right = this.parsePrimaryExpr();
+      const right = this.parseCallMemberExpr();
       left = {
         kind: "BinaryExpr",
         left,
@@ -197,8 +212,73 @@ export default class Parser {
     return left;
   }
 
-  private parseExpr(): Expr {
-    return this.parseAssignmentExpr();
+  private parseCallMemberExpr(): Expr {
+    const member: Expr = this.parseMemberExpr();
+
+    if (this.at().type == TokenType.OpenBrace) {
+      return this.parseCallExpr(member);
+    }
+
+    return member;
+  }
+
+  private parseMemberExpr(): Expr {
+    let object: Expr = this.parsePrimaryExpr();
+
+    while (this.at().type == TokenType.Dot || this.at().type == TokenType.OpenBracket) {
+      const operator = this.next();
+      let property: Expr;
+      let computed: boolean;
+
+      // For nay computed values...
+      if (operator.type == TokenType.Dot) {
+        computed = false;
+        property = this.parsePrimaryExpr();
+
+        if (property.kind != "Identifier") {
+          throw new Error("Thou canst not use the fullStop without a merry Identifier!");
+        }
+      } else {
+        computed = true;
+        property = this.parseExpr();
+        this.expect(TokenType.CloseBracket, "Syntax mistake forgetting ']' respectfully.");
+      }
+      object = { kind: "MemberExpr", object, property, computed } as MemberExpr;
+    }
+
+    return object;
+  }
+
+  private parseCallExpr(caller: Expr): Expr {
+    let callExpr: Expr = {
+      kind: "CallExpr",
+      caller,
+      args: this.parseArgs(),
+    } as CallExpr;
+
+    if (this.at().type == TokenType.OpenParen) {
+      callExpr = this.parseCallExpr(callExpr);
+    }
+
+    return callExpr;
+  }
+
+  private parseArgs(): Expr[] {
+    this.expect(TokenType.OpenParen, "Syntax mistake forgetting '(' respectfully.");
+    const args = this.at().type == TokenType.CloseParen ? [] : this.parseArgsList();
+
+    this.expect(TokenType.CloseParen, "Syntax mistake forgetting '(' respectfully.");
+    return args;
+  }
+
+  private parseArgsList(): Expr[] {
+    const args = [this.parseAssignmentExpr()];
+
+    while (!this.eof() && this.at().type == TokenType.Comma && this.next()) {
+      args.push(this.parseAssignmentExpr());
+    }
+
+    return args;
   }
 
   private parsePrimaryExpr(): Expr {

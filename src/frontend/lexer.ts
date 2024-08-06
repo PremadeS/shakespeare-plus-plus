@@ -12,6 +12,7 @@ export enum TokenType {
   CloseBracket, // ]
   Comma, //        ,
   Colon, //        :
+  Dot, //          .
 
   Const,
   Granteth,
@@ -39,6 +40,7 @@ const KEYWORDS: Record<string, TokenType> = {
   invokeThouComma: TokenType.Comma, //                    ,
   summonThyColon: TokenType.Colon, //                     :
   withUtmostRespect: TokenType.Terminator, //             ;
+  fullethStop: TokenType.Dot, //                   .
   steadFast: TokenType.Const, // constant
 };
 
@@ -82,6 +84,8 @@ function translateOperation(str: string): string {
       return ":";
     case "invokeThouComma":
       return ",";
+    case "fullethStop":
+      return ".";
     case "steadFast":
       return "const";
     default:
