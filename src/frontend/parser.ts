@@ -215,7 +215,7 @@ export default class Parser {
   private parseCallMemberExpr(): Expr {
     const member: Expr = this.parseMemberExpr();
 
-    if (this.at().type == TokenType.OpenBrace) {
+    if (this.at().type == TokenType.OpenParen) {
       return this.parseCallExpr(member);
     }
 
@@ -267,7 +267,7 @@ export default class Parser {
     this.expect(TokenType.OpenParen, "Syntax mistake forgetting '(' respectfully.");
     const args = this.at().type == TokenType.CloseParen ? [] : this.parseArgsList();
 
-    this.expect(TokenType.CloseParen, "Syntax mistake forgetting '(' respectfully.");
+    this.expect(TokenType.CloseParen, "Syntax mistake forgetting ') respectfully.");
     return args;
   }
 
