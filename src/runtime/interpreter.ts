@@ -9,9 +9,10 @@ import {
   VarDeclaration,
   AssignmentExpr,
   ObjectLiteral,
+  IfStatement,
 } from "../frontend/ast";
 import Environment from "./environment";
-import { interpretProgram, interpretVarDeclaration } from "./eval/statements";
+import { interpretIfStmt, interpretProgram, interpretVarDeclaration } from "./eval/statements";
 import { evalIdentifier, evalObjectExpr, interpretAssignment, interpretBinaryExpr } from "./eval/expressions";
 
 export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
@@ -36,6 +37,9 @@ export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
 
     case "VarDeclaration":
       return interpretVarDeclaration(astNode as VarDeclaration, env);
+
+    case "IfStatement":
+      return interpretIfStmt(astNode as IfStatement, env);
 
     default:
       console.error("Lo! This ASTNode doth baffle me like a riddle wrapped in mystery", astNode);

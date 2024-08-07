@@ -1,34 +1,90 @@
 import { AssignmentExpr, BinaryExpr, Identifier, ObjectLiteral } from "../../frontend/ast";
 import Environment from "../environment";
 import { interpret } from "../interpreter";
-import { NullVal, NumVal, ObjectVal, RuntimeVal } from "../values";
+import { BoolVal, NullVal, NumVal, ObjectVal, RuntimeVal, makeNum, makeBool, makeNull } from "../values";
 
-function evalNumBinaryExpr(left: NumVal, right: NumVal, operator: string): NumVal {
-  let result: number = 0;
+function evalNumBinaryExpr(left: RuntimeVal, right: RuntimeVal, operator: string): RuntimeVal {
+  if (operator == "&") {
+    if (left.type != "boolean" || right.type != "boolean") {
+      return makeBool(false);
+    }
+    return makeBool((left as BoolVal).value && (right as BoolVal).value);
+  } else if (operator == "|") {
+    if (left.type != "boolean" || right.type != "boolean") {
+      return makeBool(false);
+    }
+    return makeBool((left as BoolVal).value || (right as BoolVal).value);
+  } else if (operator == "==") {
+    return isEqual(left, right);
+  } else if (operator == "!=") {
+    if ((isEqual(left, right) as BoolVal).value == true) {
+      return makeBool(false);
+    } else {
+      return makeBool(true);
+    }
+  }
+
+  if (left.type == "null" || right.type == "null") {
+    throw new Error(
+      `Alas! One cannot engage in binary antics with naught but null! ${JSON.stringify(
+        left
+      )} ${operator} ${JSON.stringify(right)}`
+    );
+  }
+
+  const lhs = left as NumVal;
+  const rhs = right as NumVal;
+
   if (operator == "+") {
-    result = left.value + right.value;
+    return makeNum(lhs.value + rhs.value);
   } else if (operator == "-") {
-    result = left.value - right.value;
+    return makeNum(lhs.value - rhs.value);
   } else if (operator == "*") {
-    result = left.value * right.value;
+    return makeNum(lhs.value * rhs.value);
   } else if (operator == "/") {
     // Divison by 0
-    if (right.value == 0) {
+    if (rhs.value == 0) {
       console.error(
         "Thou art trying to cleave yon number by the wretched zero,",
         "\ndost thou not know this conjures chaos in the realm of numbers?\nAt: ",
-        left.value,
+        lhs.value,
         operator,
-        right.value
+        rhs.value
       );
       process.exit(1);
     }
-    result = left.value / right.value;
-  } else {
-    result = left.value % right.value;
+    return makeNum(lhs.value / rhs.value);
+  } else if (operator == "%") {
+    return makeNum(lhs.value % rhs.value);
+  } else if (operator == ">") {
+    return makeBool(lhs.value > rhs.value);
+  } else if (operator == "<") {
+    return makeBool(lhs.value < rhs.value);
+  } else if (operator == ">=") {
+    return makeBool(lhs.value >= rhs.value);
+  } else if (operator == "<=") {
+    return makeBool(lhs.value <= rhs.value);
   }
 
-  return { type: "number", value: result };
+  return makeNull(); // Default case...
+}
+
+function isEqual(lhs: RuntimeVal, rhs: RuntimeVal): RuntimeVal {
+  switch (lhs.type) {
+    case "boolean":
+      return makeBool((lhs as BoolVal).value == (rhs as BoolVal).value);
+    case "number":
+      return makeBool((lhs as NumVal).value == (rhs as NumVal).value);
+    case "null":
+      return makeBool((lhs as NullVal).value == (rhs as NullVal).value);
+    case "object":
+      return makeBool((lhs as ObjectVal).properties == (rhs as ObjectVal).properties);
+
+    default:
+      throw new Error(
+        `Zounds! One unfortunately does not possess the ability to compare these types! ${lhs} and ${rhs}`
+      );
+  }
 }
 
 export function evalIdentifier(identifer: Identifier, env: Environment): RuntimeVal {
@@ -51,11 +107,7 @@ export function interpretBinaryExpr(binop: BinaryExpr, env: Environment): Runtim
   const left = interpret(binop.left, env);
   const right = interpret(binop.right, env);
 
-  if (left.type == "number" && right.type == "number") {
-    return evalNumBinaryExpr(left as NumVal, right as NumVal, binop.operator);
-  }
-
-  return { type: "null", value: "null" } as NullVal;
+  return evalNumBinaryExpr(left as NumVal, right as NumVal, binop.operator);
 }
 
 export function interpretAssignment(node: AssignmentExpr, env: Environment): RuntimeVal {

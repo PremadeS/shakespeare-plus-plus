@@ -1,3 +1,4 @@
+import { BoolVal, makeBool } from "../runtime/values";
 import {
   Stmt,
   Program,
@@ -11,6 +12,7 @@ import {
   ObjectLiteral,
   CallExpr,
   MemberExpr,
+  IfStatement,
 } from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
@@ -87,7 +89,8 @@ export default class Parser {
       case TokenType.Granteth:
       case TokenType.Const:
         return this.parseVarDeclaration();
-
+      case TokenType.If:
+        return this.parseIfStmt();
       default:
         return this.parseExpr();
     }
@@ -125,6 +128,41 @@ export default class Parser {
     return declaration;
   }
 
+  private parseIfStmt(): Stmt {
+    this.next();
+    this.expect(TokenType.OpenParen, "Syntax mistake forgetting '(' respectfully");
+    const condition = this.parseExpr();
+    this.expect(TokenType.CloseParen, "Syntax mistake forgetting ')' respectfully");
+
+    const body = this.parseBlockStmt();
+
+    let other: Stmt[] = [];
+
+    if (this.at().type == TokenType.Else) {
+      this.next();
+
+      if (this.at().type == TokenType.If) {
+        other = [this.parseIfStmt()];
+      } else {
+        other = this.parseBlockStmt();
+      }
+    }
+
+    return { kind: "IfStatement", body, condition, other } as IfStatement;
+  }
+
+  private parseBlockStmt(): Stmt[] {
+    this.expect(TokenType.OpenBrace, "Syntax mistake forgetting '{' respectfully");
+    const body: Stmt[] = [];
+
+    while (!this.eof() && this.at().type != TokenType.CloseBrace) {
+      body.push(this.parseStmt());
+    }
+
+    this.expect(TokenType.CloseBrace, "Syntax mistake forgetting '}' respectfully");
+    return body;
+  }
+
   private parseExpr(): Expr {
     return this.parseAssignmentExpr();
   }
@@ -134,6 +172,8 @@ export default class Parser {
     if (this.at().type == TokenType.Equals) {
       this.next();
       const rhs = this.parseAssignmentExpr();
+
+      this.expect(TokenType.Terminator, "Syntax mistake forgetting 'withUtmostRespect' respectfully");
       return { kind: "AssignmentExpr", assignee: lhs, value: rhs } as AssignmentExpr;
     }
 
@@ -142,7 +182,7 @@ export default class Parser {
 
   private parseObjectExpr(): Expr {
     if (this.at().type != TokenType.OpenBrace) {
-      return this.parseAdditiveExpr();
+      return this.parseAndOrExpr();
     }
 
     this.next();
@@ -177,11 +217,37 @@ export default class Parser {
     return { kind: "ObjectLiteral", properties: properties } as ObjectLiteral;
   }
 
+  private parseAndOrExpr(): Expr {
+    let left = this.parseAdditiveExpr();
+
+    if (this.at().value == "&" || this.at().value == "|") {
+      const operator = this.next().value;
+      const right = this.parseAdditiveExpr();
+
+      left = {
+        kind: "BinaryExpr",
+        left,
+        right,
+        operator,
+      } as BinaryExpr;
+      while (this.at().type == TokenType.And || this.at().type == TokenType.Or) {
+        left = {
+          kind: "BinaryExpr",
+          left,
+          operator: this.next().value,
+          right: this.parseExpr(),
+        } as BinaryExpr;
+      }
+    }
+
+    return left;
+  }
+
   private parseAdditiveExpr(): Expr {
     let left = this.parseMultiplicativeExpr();
 
     /**-----  Will change when changing syntax... but keep for now... -----*/
-    while (this.at().value == "+" || this.at().value == "-") {
+    while (["+", "-", "==", "!=", ">", "<", ">=", "<="].includes(this.at().value)) {
       const operator = this.next().value;
       const right = this.parseMultiplicativeExpr();
       left = {

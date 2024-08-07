@@ -2,6 +2,7 @@ export type NodeType =
   // Statements...
   | "Program"
   | "VarDeclaration"
+  | "IfStatement"
 
   // Expressions...
   | "AssignmentExpr"
@@ -31,6 +32,13 @@ export interface VarDeclaration extends Stmt {
   constant: boolean;
   identifier: string;
   value?: Expr; // can be Expr or undefined..
+}
+
+export interface IfStatement extends Stmt {
+  kind: "IfStatement";
+  body: Stmt[];
+  condition: Expr;
+  other: Stmt[]; // for else block...
 }
 
 // Expression (outcomes in a value at runtime)...
