@@ -1,10 +1,11 @@
-import * as fs from "fs";
 export enum TokenType {
   Number,
   BinaryOperator,
   Identifier,
   If,
   Else,
+  For,
+  While,
 
   OpenParen, //           (
   CloseParen, //          )
@@ -57,12 +58,14 @@ const KEYWORDS: Record<string, TokenType> = {
   "`notEquivalethTo`": TokenType.NotEqualTo, //                     !=
   "`greaterThanThou`": TokenType.Greater, //                        >
   "`lessThanThou`": TokenType.Less, //                              <
-  "`greaterThanEqualToThou`": TokenType.GreaterThanEqual, //        >=
-  "`lessThanEqualToThou`": TokenType.LessThanEqual, //              <=
+  "`greaterThanEquivalethToThou`": TokenType.GreaterThanEqual, //        >=
+  "`lessThanEquivalethToThou`": TokenType.LessThanEqual, //              <=
   steadFast: TokenType.Const, //                                    constant
 
   providethThouFindestThyConditionTrue: TokenType.If,
   elsewiseRunnethThis: TokenType.Else,
+  forsoothCyclethThroughThyRange: TokenType.For,
+  whilstThouConditionHolds: TokenType.While,
 };
 
 // Maketh Token
@@ -80,6 +83,7 @@ function isNumber(str: string) {
 function isWhiteSpace(str: string) {
   return str == " " || str == "\n" || str == "\t" || str == "\r";
 }
+
 /*  +-----------------------------------------------------------------------+
  *  |----- Converts identifier to a simpler keyword/symbol... ---------------------|
  *  |----- if not an operator identifier, then returns the same string... --|
@@ -119,14 +123,18 @@ function translateOperation(str: string): string {
       return ">";
     case "`lessThanThou`":
       return "<";
-    case "`greaterThanEqualToThou`":
+    case "`greaterThanEquivalethToThou`":
       return ">=";
-    case "`lessThanEqualToThou`":
+    case "`lessThanEquivalethToThou`":
       return "<=";
     case "providethThouFindestThyConditionTrue":
       return "if";
     case "elsewiseRunnethThis":
       return "else";
+    case "forsoothCyclethThroughThyRange":
+      return "for";
+    case "whilstThouConditionHolds":
+      return "while";
     case "steadFast":
       return "const";
     default:

@@ -13,6 +13,8 @@ import {
   CallExpr,
   MemberExpr,
   IfStatement,
+  ForStatement,
+  WhileStatement,
 } from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
@@ -91,6 +93,10 @@ export default class Parser {
         return this.parseVarDeclaration();
       case TokenType.If:
         return this.parseIfStmt();
+      case TokenType.For:
+        return this.parseForStmt();
+      case TokenType.While:
+        return this.parseWhileStmt();
       default:
         return this.parseExpr();
     }
@@ -149,6 +155,46 @@ export default class Parser {
     }
 
     return { kind: "IfStatement", body, condition, other } as IfStatement;
+  }
+
+  // for(let i = 0; i < 10; i = i + 1){}
+  private parseForStmt(): Stmt {
+    this.next();
+    this.expect(TokenType.OpenParen, "Syntax mistake forgetting '(' respectfully");
+    const init = this.parseVarDeclaration();
+    const condition = this.parseExpr();
+
+    this.expect(TokenType.Terminator, "Syntax mistake forgetting 'withUtmostRespect' respectfully");
+
+    const update = this.parseExpr();
+
+    this.expect(TokenType.CloseParen, "Syntax mistake forgetting ')' respectfully");
+
+    const body = this.parseBlockStmt();
+
+    return {
+      kind: "ForStatement",
+      init,
+      condition,
+      update,
+      body,
+    } as ForStatement;
+  }
+
+  private parseWhileStmt(): Stmt {
+    this.next();
+    this.expect(TokenType.OpenParen, "Syntax mistake forgetting '(' respectfully");
+
+    const condition = this.parseExpr();
+    this.expect(TokenType.CloseParen, "Syntax mistake forgetting ')' respectfully");
+
+    const body = this.parseBlockStmt();
+
+    return {
+      kind: "WhileStatement",
+      condition,
+      body,
+    } as WhileStatement;
   }
 
   private parseBlockStmt(): Stmt[] {

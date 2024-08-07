@@ -3,6 +3,8 @@ export type NodeType =
   | "Program"
   | "VarDeclaration"
   | "IfStatement"
+  | "ForStatement"
+  | "WhileStatement"
 
   // Expressions...
   | "AssignmentExpr"
@@ -39,6 +41,20 @@ export interface IfStatement extends Stmt {
   body: Stmt[];
   condition: Expr;
   other: Stmt[]; // for else block...
+}
+
+export interface ForStatement extends Stmt {
+  kind: "ForStatement";
+  init: VarDeclaration;
+  update: AssignmentExpr;
+  body: Stmt[];
+  condition: Expr;
+}
+
+export interface WhileStatement extends Stmt {
+  kind: "WhileStatement";
+  body: Stmt[];
+  condition: Expr;
 }
 
 // Expression (outcomes in a value at runtime)...

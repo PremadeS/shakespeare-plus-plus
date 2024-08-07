@@ -10,9 +10,17 @@ import {
   AssignmentExpr,
   ObjectLiteral,
   IfStatement,
+  ForStatement,
+  WhileStatement,
 } from "../frontend/ast";
 import Environment from "./environment";
-import { interpretIfStmt, interpretProgram, interpretVarDeclaration } from "./eval/statements";
+import {
+  interpretForStmt,
+  interpretIfStmt,
+  interpretProgram,
+  interpretVarDeclaration,
+  interpretWhileStmt,
+} from "./eval/statements";
 import { evalIdentifier, evalObjectExpr, interpretAssignment, interpretBinaryExpr } from "./eval/expressions";
 
 export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
@@ -40,6 +48,12 @@ export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
 
     case "IfStatement":
       return interpretIfStmt(astNode as IfStatement, env);
+
+    case "ForStatement":
+      return interpretForStmt(astNode as ForStatement, env);
+
+    case "WhileStatement":
+      return interpretWhileStmt(astNode as WhileStatement, env);
 
     default:
       console.error("Lo! This ASTNode doth baffle me like a riddle wrapped in mystery", astNode);
