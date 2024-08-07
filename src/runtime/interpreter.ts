@@ -12,6 +12,7 @@ import {
   IfStatement,
   ForStatement,
   WhileStatement,
+  CallExpr,
 } from "../frontend/ast";
 import Environment from "./environment";
 import {
@@ -21,7 +22,13 @@ import {
   interpretVarDeclaration,
   interpretWhileStmt,
 } from "./eval/statements";
-import { evalIdentifier, evalObjectExpr, interpretAssignment, interpretBinaryExpr } from "./eval/expressions";
+import {
+  interpretCallExpr,
+  interpretIdentifier,
+  interpretObjectExpr,
+  interpretAssignment,
+  interpretBinaryExpr,
+} from "./eval/expressions";
 
 export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
@@ -29,10 +36,13 @@ export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
       return { value: (astNode as NumericLiteral).value, type: "number" } as NumVal;
 
     case "Identifier":
-      return evalIdentifier(astNode as Identifier, env);
+      return interpretIdentifier(astNode as Identifier, env);
 
     case "ObjectLiteral":
-      return evalObjectExpr(astNode as ObjectLiteral, env);
+      return interpretObjectExpr(astNode as ObjectLiteral, env);
+
+    case "CallExpr":
+      return interpretCallExpr(astNode as CallExpr, env);
 
     case "BinaryExpr":
       return interpretBinaryExpr(astNode as BinaryExpr, env);

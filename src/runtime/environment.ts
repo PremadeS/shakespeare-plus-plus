@@ -1,12 +1,27 @@
-import { RuntimeVal, makeBool, makeNull, makeNum } from "./values";
+import { RuntimeVal, makeBool, makeNativeFn, makeNull, makeNum } from "./values";
 
 export function createGlobalEnv(): Environment {
   const env = new Environment();
-  env.declareVar("x", makeNum(100), true);
-  env.declareVar("y", makeNum(50), true);
+
   env.declareVar("asTrueAsTheLightOfDay", makeBool(true), true); //   True...
   env.declareVar("asFalseAsAFlimsyFabric", makeBool(false), true); // False...
   env.declareVar("asHollowAsAFoolsHead", makeNull(), true); //        Null...
+
+  //Maketh Native built-in functions...
+  //Print...
+  env.declareVar(
+    "print",
+    makeNativeFn((args, scope) => {
+      console.log(...args);
+      return makeNull();
+    }),
+    true
+  );
+  //Current Time...
+  function timeFunction(args: RuntimeVal[], env: Environment): RuntimeVal {
+    return makeNum(Date.now());
+  }
+  env.declareVar("time", makeNativeFn(timeFunction), true);
 
   return env;
 }

@@ -18,7 +18,7 @@ async function run() {
 
   // Interpret...
   let inter = interpret(program, env);
-  console.log(inter);
+  // console.log(inter);
 }
 
 function repl() {
@@ -37,6 +37,6 @@ function repl() {
 
     // Interpret...
     let inter = interpret(program, env);
-    console.log(inter);
+    // console.log(inter);
   }
 }

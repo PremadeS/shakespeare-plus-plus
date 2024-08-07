@@ -1,9 +1,10 @@
-import { AssignmentExpr, BinaryExpr, Identifier, ObjectLiteral } from "../../frontend/ast";
+import { AssignmentExpr, BinaryExpr, CallExpr, Identifier, ObjectLiteral } from "../../frontend/ast";
+import { TokenType } from "../../frontend/lexer";
 import Environment from "../environment";
 import { interpret } from "../interpreter";
-import { BoolVal, NullVal, NumVal, ObjectVal, RuntimeVal, makeNum, makeBool, makeNull } from "../values";
+import { BoolVal, NullVal, NumVal, ObjectVal, RuntimeVal, makeNum, makeBool, makeNull, NativeFnVal } from "../values";
 
-function evalNumBinaryExpr(left: RuntimeVal, right: RuntimeVal, operator: string): RuntimeVal {
+function interpretNumBinaryExpr(left: RuntimeVal, right: RuntimeVal, operator: string): RuntimeVal {
   if (operator == "&") {
     if (left.type != "boolean" || right.type != "boolean") {
       return makeBool(false);
@@ -87,12 +88,12 @@ function isEqual(lhs: RuntimeVal, rhs: RuntimeVal): RuntimeVal {
   }
 }
 
-export function evalIdentifier(identifer: Identifier, env: Environment): RuntimeVal {
+export function interpretIdentifier(identifer: Identifier, env: Environment): RuntimeVal {
   const val = env.lookupVar(identifer.symbol);
   return val;
 }
 
-export function evalObjectExpr(obj: ObjectLiteral, env: Environment): RuntimeVal {
+export function interpretObjectExpr(obj: ObjectLiteral, env: Environment): RuntimeVal {
   const object = { type: "object", properties: new Map() } as ObjectVal;
 
   for (const { key, value } of obj.properties) {
@@ -103,11 +104,30 @@ export function evalObjectExpr(obj: ObjectLiteral, env: Environment): RuntimeVal
   return object;
 }
 
+export function interpretCallExpr(expr: CallExpr, env: Environment): RuntimeVal {
+  // const args = expr.args.map((arg) => interpret(arg, env));
+  const args: RuntimeVal[] = [];
+
+  for (const arg of expr.args) {
+    args.push(interpret(arg, env));
+  }
+
+  const fn = interpret(expr.caller, env);
+  if (fn.type != "native-fn") {
+    throw new Error("Alas, thou canst not call a value that is no function! " + JSON.stringify(fn));
+  }
+
+  const result = (fn as NativeFnVal).call(args, env);
+  return result;
+
+  return makeNull();
+}
+
 export function interpretBinaryExpr(binop: BinaryExpr, env: Environment): RuntimeVal {
   const left = interpret(binop.left, env);
   const right = interpret(binop.right, env);
 
-  return evalNumBinaryExpr(left as NumVal, right as NumVal, binop.operator);
+  return interpretNumBinaryExpr(left as NumVal, right as NumVal, binop.operator);
 }
 
 export function interpretAssignment(node: AssignmentExpr, env: Environment): RuntimeVal {

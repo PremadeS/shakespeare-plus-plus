@@ -371,7 +371,6 @@ export default class Parser {
     if (this.at().type == TokenType.OpenParen) {
       callExpr = this.parseCallExpr(callExpr);
     }
-
     return callExpr;
   }
 
