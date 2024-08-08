@@ -1,27 +1,56 @@
-import { RuntimeVal, makeBool, makeNativeFn, makeNull, makeNum } from "./values";
+import { BoolVal, NumVal, ObjectVal, RuntimeVal, StringVal, makeBool, makeNativeFn, makeNull, makeNum } from "./values";
+
+function timeFunction(args: RuntimeVal[], env: Environment): RuntimeVal {
+  return makeNum(Date.now());
+}
+
+function printFunction(args: RuntimeVal[], env: Environment): RuntimeVal {
+  let result: string = "";
+  for (let i = 0; i < args.length; ++i) {
+    switch (args[i].type) {
+      case "null":
+        result += "AsHollowAsAFoolsHead";
+        break;
+      case "boolean": {
+        if ((args[i] as BoolVal).value == true) {
+          result += "AsTrueAsTheLightOfDay";
+        } else {
+          result += "AsFalseAsAFlimsyFabric";
+        }
+        break;
+      }
+      case "number":
+        result += (args[i] as NumVal).value;
+        break;
+      case "string":
+        result += (args[i] as StringVal).value;
+        break;
+      case "object":
+        result += (args[i] as ObjectVal).properties;
+        break;
+
+      default:
+        console.log(args[i]);
+        break;
+    }
+  }
+  process.stdout.write(result);
+  return makeNull();
+}
 
 export function createGlobalEnv(): Environment {
   const env = new Environment();
 
-  env.declareVar("asTrueAsTheLightOfDay", makeBool(true), true); //   True...
-  env.declareVar("asFalseAsAFlimsyFabric", makeBool(false), true); // False...
-  env.declareVar("asHollowAsAFoolsHead", makeNull(), true); //        Null...
+  env.declareVar("asTrueAsTheLightOfDay", makeBool(true), true); //     True...
+  env.declareVar("asFalseAsAFlimsyFabric", makeBool(false), true); //   False...
+  env.declareVar("asHollowAsAFoolsHead", makeNull(), true); //          Null...
 
   //Maketh Native built-in functions...
   //Print...
-  env.declareVar(
-    "print",
-    makeNativeFn((args, scope) => {
-      console.log(...args);
-      return makeNull();
-    }),
-    true
-  );
+  env.declareVar("printethThouWordsForAllToSee", makeNativeFn(printFunction), true);
   //Current Time...
-  function timeFunction(args: RuntimeVal[], env: Environment): RuntimeVal {
-    return makeNum(Date.now());
-  }
-  env.declareVar("time", makeNativeFn(timeFunction), true);
+
+  env.declareVar("revealThyTime", makeNativeFn(timeFunction), true);
 
   return env;
 }

@@ -218,6 +218,9 @@ export function tokenize(source: string): Token[] {
             ++pos;
           }
         }
+        if (src[pos] != '"') {
+          throw new Error("syntax mistake forgetting '\"' respectfully.");
+        }
         tokens.push(token(TokenType.String, identifer));
       } else if (isAlphabet(src[pos])) {
         let identifier: string = src[pos];
