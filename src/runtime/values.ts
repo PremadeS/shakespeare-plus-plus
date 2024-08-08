@@ -60,6 +60,10 @@ export interface ObjectVal extends RuntimeVal {
   properties: Map<string, RuntimeVal>;
 }
 
+export function makeObject(obj: Map<string, RuntimeVal>) {
+  return { type: "object", properties: obj } as ObjectVal;
+}
+
 export type FunctionCall = (args: RuntimeVal[], env: Environment) => RuntimeVal;
 
 //Native functions...

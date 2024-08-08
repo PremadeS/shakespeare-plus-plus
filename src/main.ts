@@ -1,6 +1,6 @@
 import { Program } from "./frontend/ast";
 import Parser from "./frontend/parser";
-import Environment, { createGlobalEnv } from "./runtime/environment";
+import { createGlobalEnv } from "./runtime/environment";
 import { interpret } from "./runtime/interpreter";
 import * as readLineSync from "readline-sync";
 import { readFileSync } from "fs";

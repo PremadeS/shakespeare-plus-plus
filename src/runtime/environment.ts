@@ -1,5 +1,6 @@
 import { Identifier, MemberExpr } from "../frontend/ast";
-import { interpret } from "./interpreter";
+import * as readLineSync from "readline-sync";
+
 import {
   ArrayVal,
   BoolVal,
@@ -11,6 +12,8 @@ import {
   makeNativeFn,
   makeNull,
   makeNum,
+  makeObject,
+  makeString,
 } from "./values";
 
 function timeFunction(args: RuntimeVal[], env: Environment): RuntimeVal {
@@ -61,11 +64,104 @@ export function createGlobalEnv(): Environment {
   env.declareVar("asHollowAsAFoolsHead", makeNull(), true); //          Null...
 
   //Maketh Native built-in functions...
+
   //Print...
   env.declareVar("printethThouWordsForAllToSee", makeNativeFn(printFunction), true);
 
   //Current Time...
   env.declareVar("revealThyTime", makeNativeFn(timeFunction), true);
+
+  //Inputs...
+  env.declareVar(
+    "readethThineStringInput",
+    makeNativeFn((args) => {
+      let input: string = readLineSync.question();
+      return makeString(input);
+    }),
+    true
+  );
+  env.declareVar(
+    "readethThineNumInput",
+    makeNativeFn((args) => {
+      let input: string = readLineSync.question();
+      let res = Number(input);
+      if (!res) {
+        throw new Error(`Thy number proves itself a whimsical fool!: ${input}`);
+      }
+      return makeNum(res);
+    }),
+    true
+  );
+
+  // Arithmetic things...
+  env.declareVar(
+    "calculationShenanigans",
+    makeObject(
+      new Map()
+        .set("pi", makeNum(Math.PI))
+        .set("e", makeNum(Math.E))
+        .set(
+          "unveilThyAbsoluteWorth",
+          makeNativeFn((args) => {
+            const arg = (args[0] as NumVal).value;
+            return makeNum(Math.abs(arg));
+          })
+        )
+        .set(
+          "revealThouRootsWhimsy",
+          makeNativeFn((args) => {
+            const arg = (args[0] as NumVal).value;
+            return makeNum(Math.sqrt(arg));
+          })
+        )
+        .set(
+          "witnessThisErrantDigit",
+          makeNativeFn((args) => {
+            const arg1 = (args[0] as NumVal).value;
+            const arg2 = (args[1] as NumVal).value;
+
+            const min = Math.ceil(arg1);
+            const max = Math.floor(arg2);
+            return makeNum(Math.floor(Math.random() * (max - min + 1)) + min);
+          })
+        )
+        .set(
+          "logOfTwosMeasure",
+          makeNativeFn((args) => {
+            const arg = (args[0] as NumVal).value;
+            return makeNum(Math.log2(arg));
+          })
+        )
+        .set(
+          "logOfTenFold",
+          makeNativeFn((args) => {
+            const arg = (args[0] as NumVal).value;
+            return makeNum(Math.log10(arg));
+          })
+        )
+        .set(
+          "greatestOfThemAll",
+          makeNativeFn((args) => {
+            let maxNum: number = (args[0] as NumVal).value;
+            for (let i = 1; i < args.length; ++i) {
+              maxNum = Math.max(maxNum, (args[i] as NumVal).value);
+            }
+            return makeNum(maxNum);
+          })
+        )
+        .set(
+          "littlestOfThemAll",
+          makeNativeFn((args) => {
+            let minNum: number = (args[0] as NumVal).value;
+            for (let i = 1; i < args.length; ++i) {
+              minNum = Math.min(minNum, (args[i] as NumVal).value);
+            }
+            return makeNum(minNum);
+          })
+        )
+    ),
+    true
+  );
 
   return env;
 }
@@ -136,20 +232,15 @@ export default class Environment {
       pastVal = env.variables.get(varname);
     }
 
-    switch (pastVal.type) {
-      case "object": {
-        const currentProp = (expr.property as Identifier).symbol;
-        const prop = property ? property.symbol : currentProp;
+    const currentProp = (expr.property as Identifier).symbol;
+    const prop = property ? property.symbol : currentProp;
 
-        if (value) (pastVal as ObjectVal).properties.set(prop, value);
-
-        if (currentProp) pastVal = (pastVal as ObjectVal).properties.get(currentProp) as ObjectVal;
-
-        return pastVal;
-      }
-
-      default:
-        throw "Alas, the type thou seekest is beyond my ken!: " + pastVal.type;
+    if (value) {
+      (pastVal as ObjectVal).properties.set(prop, value);
     }
+    if (currentProp) {
+      pastVal = (pastVal as ObjectVal).properties.get(currentProp) as ObjectVal;
+    }
+    return pastVal;
   }
 }

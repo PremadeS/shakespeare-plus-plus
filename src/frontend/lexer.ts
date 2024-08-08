@@ -176,8 +176,6 @@ export function tokenize(source: string): Token[] {
       tokens.push(token(TokenType.OpenBracket, src[pos]));
     } else if (src[pos] == "]") {
       tokens.push(token(TokenType.CloseBracket, src[pos]));
-    } else if (src[pos] == ",") {
-      tokens.push(token(TokenType.Comma, src[pos]));
     } //Multi character tokens...
     else {
       if (src[pos] == "`") {

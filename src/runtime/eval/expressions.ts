@@ -139,7 +139,6 @@ export function interpretObjectExpr(obj: ObjectLiteral, env: Environment): Runti
 }
 
 export function interpretCallExpr(expr: CallExpr, env: Environment): RuntimeVal {
-  // const args = expr.args.map((arg) => interpret(arg, env));
   const args: RuntimeVal[] = [];
 
   for (const arg of expr.args) {
@@ -148,6 +147,10 @@ export function interpretCallExpr(expr: CallExpr, env: Environment): RuntimeVal 
 
   const fn = interpret(expr.caller, env);
   // Native functions....
+  if (!fn) {
+    throw new Error(`Function doth not found!`);
+  }
+
   if (fn.type == "native-fn") {
     const result = (fn as NativeFnVal).call(args, env);
     return result;
