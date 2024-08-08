@@ -5,6 +5,7 @@ export type NodeType =
   | "IfStatement"
   | "ForStatement"
   | "WhileStatement"
+  | "FnDeclaration"
 
   // Expressions...
   | "AssignmentExpr"
@@ -55,6 +56,12 @@ export interface WhileStatement extends Stmt {
   kind: "WhileStatement";
   body: Stmt[];
   condition: Expr;
+}
+export interface FnDeclaration extends Stmt {
+  kind: "FnDeclaration";
+  name: string;
+  parameters: string[];
+  body: Stmt[];
 }
 
 // Expression (outcomes in a value at runtime)...

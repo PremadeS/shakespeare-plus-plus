@@ -13,9 +13,11 @@ import {
   ForStatement,
   WhileStatement,
   CallExpr,
+  FnDeclaration,
 } from "../frontend/ast";
 import Environment from "./environment";
 import {
+  interpretFnDeclaration,
   interpretForStmt,
   interpretIfStmt,
   interpretProgram,
@@ -56,6 +58,8 @@ export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
     case "VarDeclaration":
       return interpretVarDeclaration(astNode as VarDeclaration, env);
 
+    case "FnDeclaration":
+      return interpretFnDeclaration(astNode as FnDeclaration, env);
     case "IfStatement":
       return interpretIfStmt(astNode as IfStatement, env);
 

@@ -15,6 +15,7 @@ import {
   IfStatement,
   ForStatement,
   WhileStatement,
+  FnDeclaration,
 } from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
@@ -97,6 +98,8 @@ export default class Parser {
         return this.parseForStmt();
       case TokenType.While:
         return this.parseWhileStmt();
+      case TokenType.Fn:
+        return this.parseFnDeclaration();
       default:
         return this.parseExpr();
     }
@@ -195,6 +198,22 @@ export default class Parser {
       condition,
       body,
     } as WhileStatement;
+  }
+
+  parseFnDeclaration(): Stmt {
+    this.next();
+    const name = this.expect(TokenType.Identifier, "Syntax mistake forgetting 'Identifier' respectfully.").value;
+    const args = this.parseArgs();
+    const parameters: string[] = [];
+    for (const arg of args) {
+      if (arg.kind !== "Identifier") {
+        throw new Error("Hark! Expecteth thine function's parameters to be strings" + arg);
+      }
+      parameters.push((arg as Identifier).symbol);
+    }
+    const body = this.parseBlockStmt();
+
+    return { kind: "FnDeclaration", name, parameters, body } as FnDeclaration;
   }
 
   private parseBlockStmt(): Stmt[] {

@@ -2,7 +2,18 @@ import { AssignmentExpr, BinaryExpr, CallExpr, Identifier, ObjectLiteral } from 
 import { TokenType } from "../../frontend/lexer";
 import Environment from "../environment";
 import { interpret } from "../interpreter";
-import { BoolVal, NullVal, NumVal, ObjectVal, RuntimeVal, makeNum, makeBool, makeNull, NativeFnVal } from "../values";
+import {
+  BoolVal,
+  NullVal,
+  NumVal,
+  ObjectVal,
+  RuntimeVal,
+  makeNum,
+  makeBool,
+  makeNull,
+  NativeFnVal,
+  FunctionVal,
+} from "../values";
 
 function interpretNumBinaryExpr(left: RuntimeVal, right: RuntimeVal, operator: string): RuntimeVal {
   if (operator == "&") {
@@ -113,14 +124,40 @@ export function interpretCallExpr(expr: CallExpr, env: Environment): RuntimeVal 
   }
 
   const fn = interpret(expr.caller, env);
-  if (fn.type != "native-fn") {
-    throw new Error("Alas, thou canst not call a value that is no function! " + JSON.stringify(fn));
+  // Native functions....
+  if (fn.type == "native-fn") {
+    const result = (fn as NativeFnVal).call(args, env);
+    return result;
   }
 
-  const result = (fn as NativeFnVal).call(args, env);
-  return result;
+  // User-defined functions....
+  if (fn.type == "function") {
+    const func = fn as FunctionVal;
+    const scope = new Environment(func.declereationEnv);
 
-  return makeNull();
+    if (args.length != func.parameters.length) {
+      throw new Error(
+        "Arguments not equivaleth to parameters,\nNo. of arguments: " +
+          args.length +
+          "\nNo. of Paramters: " +
+          func.parameters.length
+      );
+    }
+
+    //Maketh var for parameters list...
+    for (let i = 0; i < func.parameters.length; ++i) {
+      const varName = func.parameters[i];
+      scope.declareVar(varName, args[i], false);
+    }
+
+    let result: RuntimeVal = makeNull();
+    for (const stmt of func.body) {
+      result = interpret(stmt, scope);
+    }
+    return result;
+  }
+
+  throw new Error("Alas, thou canst not call a value that is no function! " + JSON.stringify(fn));
 }
 
 export function interpretBinaryExpr(binop: BinaryExpr, env: Environment): RuntimeVal {

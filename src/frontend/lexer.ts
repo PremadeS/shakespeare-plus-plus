@@ -6,6 +6,7 @@ export enum TokenType {
   Else,
   For,
   While,
+  Fn,
 
   OpenParen, //           (
   CloseParen, //          )
@@ -66,6 +67,7 @@ const KEYWORDS: Record<string, TokenType> = {
   elsewiseRunnethThis: TokenType.Else,
   forsoothCyclethThroughThyRange: TokenType.For,
   whilstThouConditionHolds: TokenType.While,
+  fn: TokenType.Fn,
 };
 
 // Maketh Token

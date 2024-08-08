@@ -1,7 +1,15 @@
-import { ForStatement, IfStatement, Program, Stmt, VarDeclaration, WhileStatement } from "../../frontend/ast";
+import {
+  FnDeclaration,
+  ForStatement,
+  IfStatement,
+  Program,
+  Stmt,
+  VarDeclaration,
+  WhileStatement,
+} from "../../frontend/ast";
 import Environment from "../environment";
 import { interpret } from "../interpreter";
-import { RuntimeVal, NullVal, makeNull, BoolVal } from "../values";
+import { RuntimeVal, NullVal, makeNull, BoolVal, FunctionVal } from "../values";
 import { interpretAssignment } from "./expressions";
 
 export function interpretProgram(program: Program, env: Environment): RuntimeVal {
@@ -18,6 +26,18 @@ export function interpretProgram(program: Program, env: Environment): RuntimeVal
 export function interpretVarDeclaration(declaration: VarDeclaration, env: Environment): RuntimeVal {
   const val = declaration.value ? interpret(declaration.value, env) : makeNull();
   return env.declareVar(declaration.identifier, val, declaration.constant);
+}
+
+export function interpretFnDeclaration(declaration: FnDeclaration, env: Environment): RuntimeVal {
+  const fn = {
+    type: "function",
+    name: declaration.name,
+    parameters: declaration.parameters,
+    declereationEnv: env,
+    body: declaration.body,
+  } as FunctionVal;
+
+  return env.declareVar(declaration.name, fn, true);
 }
 
 export function interpretIfStmt(stmt: IfStatement, env: Environment): RuntimeVal {

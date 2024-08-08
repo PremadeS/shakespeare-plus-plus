@@ -1,6 +1,7 @@
+import { Stmt } from "../frontend/ast";
 import Environment from "./environment";
 
-export type ValueType = "null" | "number" | "boolean" | "object" | "native-fn";
+export type ValueType = "null" | "number" | "boolean" | "object" | "native-fn" | "function";
 
 export interface RuntimeVal {
   type: ValueType;
@@ -49,4 +50,12 @@ export interface NativeFnVal extends RuntimeVal {
 
 export function makeNativeFn(call: FunctionCall): RuntimeVal {
   return { type: "native-fn", call } as NativeFnVal;
+}
+
+export interface FunctionVal extends RuntimeVal {
+  type: "function";
+  name: string;
+  parameters: string[];
+  declereationEnv: Environment;
+  body: Stmt[];
 }
