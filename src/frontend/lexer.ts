@@ -1,5 +1,6 @@
 export enum TokenType {
   Number,
+  String, //              ""
   BinaryOperator,
   Identifier,
   If,
@@ -25,7 +26,6 @@ export enum TokenType {
   Less, //                <
   GreaterThanEqual, //    >=
   LessThanEqual, //       <=
-  Quote, //               "
   StartComments, //       /*
   EndComments, //         */
 
@@ -194,6 +194,31 @@ export function tokenize(source: string): Token[] {
         } else {
           tokens.push(token(TokenType.Identifier, identifier));
         }
+      } else if (src[pos] == '"') {
+        ++pos;
+        let identifer: string = "";
+        while (pos < src.length && src[pos] != '"') {
+          // Handle escape characters...
+          if (src[pos] == "\\" && pos + 1 < src.length) {
+            const char: string = src[pos + 1];
+            switch (char) {
+              case "n":
+                identifer += "\n";
+                break;
+              case "t":
+                identifer += "\t";
+                break;
+              case "r":
+                identifer += "\r";
+                break;
+            }
+            pos += 2;
+          } else {
+            identifer += src[pos];
+            ++pos;
+          }
+        }
+        tokens.push(token(TokenType.String, identifer));
       } else if (isAlphabet(src[pos])) {
         let identifier: string = src[pos];
         ++pos;

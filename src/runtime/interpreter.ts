@@ -1,6 +1,5 @@
-import { ValueType, RuntimeVal, NumVal, NullVal } from "./values";
+import { RuntimeVal, NumVal, StringVal } from "./values";
 import {
-  NodeType,
   NumericLiteral,
   Stmt,
   BinaryExpr,
@@ -14,6 +13,7 @@ import {
   WhileStatement,
   CallExpr,
   FnDeclaration,
+  StringLiteral,
 } from "../frontend/ast";
 import Environment from "./environment";
 import {
@@ -36,6 +36,9 @@ export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
   switch (astNode.kind) {
     case "NumericLiteral":
       return { value: (astNode as NumericLiteral).value, type: "number" } as NumVal;
+
+    case "StringLiteral":
+      return { value: (astNode as StringLiteral).value, type: "string" } as StringVal;
 
     case "Identifier":
       return interpretIdentifier(astNode as Identifier, env);

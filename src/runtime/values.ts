@@ -1,7 +1,7 @@
 import { Stmt } from "../frontend/ast";
 import Environment from "./environment";
 
-export type ValueType = "null" | "number" | "boolean" | "object" | "native-fn" | "function";
+export type ValueType = "null" | "number" | "boolean" | "object" | "native-fn" | "function" | "string";
 
 export interface RuntimeVal {
   type: ValueType;
@@ -32,6 +32,15 @@ export interface BoolVal extends RuntimeVal {
 }
 export function makeBool(b = true): RuntimeVal {
   return { type: "boolean", value: b } as BoolVal;
+}
+
+// String...
+export interface StringVal extends RuntimeVal {
+  type: "string";
+  value: string;
+}
+export function makeString(str: string): RuntimeVal {
+  return { type: "string", value: str } as StringVal;
 }
 
 //Object...

@@ -13,6 +13,8 @@ import {
   makeNull,
   NativeFnVal,
   FunctionVal,
+  StringVal,
+  makeString,
 } from "../values";
 
 function interpretNumBinaryExpr(left: RuntimeVal, right: RuntimeVal, operator: string): RuntimeVal {
@@ -42,6 +44,10 @@ function interpretNumBinaryExpr(left: RuntimeVal, right: RuntimeVal, operator: s
         left
       )} ${operator} ${JSON.stringify(right)}`
     );
+  }
+
+  if (left.type == "string" && right.type == "string" && operator == "+") {
+    return makeString((left as StringVal).value + (right as StringVal).value);
   }
 
   const lhs = left as NumVal;
@@ -87,10 +93,19 @@ function isEqual(lhs: RuntimeVal, rhs: RuntimeVal): RuntimeVal {
       return makeBool((lhs as BoolVal).value == (rhs as BoolVal).value);
     case "number":
       return makeBool((lhs as NumVal).value == (rhs as NumVal).value);
+    case "string":
+      return makeBool((lhs as StringVal).value == (rhs as StringVal).value);
     case "null":
       return makeBool((lhs as NullVal).value == (rhs as NullVal).value);
     case "object":
       return makeBool((lhs as ObjectVal).properties == (rhs as ObjectVal).properties);
+    case "native-fn":
+      return makeBool((lhs as NativeFnVal).call == (rhs as NativeFnVal).call);
+    case "function":
+      return makeBool(
+        (lhs as FunctionVal).body == (rhs as FunctionVal).body &&
+          (lhs as FunctionVal).parameters == (rhs as FunctionVal).parameters
+      );
 
     default:
       throw new Error(

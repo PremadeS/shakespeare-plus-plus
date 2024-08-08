@@ -16,6 +16,7 @@ import {
   ForStatement,
   WhileStatement,
   FnDeclaration,
+  StringLiteral,
 } from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
@@ -425,6 +426,9 @@ export default class Parser {
 
       case TokenType.Number:
         return { kind: "NumericLiteral", value: parseFloat(this.next().value) } as NumericLiteral;
+
+      case TokenType.String:
+        return { kind: "StringLiteral", value: this.next().value } as StringLiteral;
 
       case TokenType.OpenParen: {
         this.next();

@@ -17,7 +17,8 @@ export type NodeType =
   | "ObjectLiteral"
   | "NumericLiteral"
   | "Identifier"
-  | "BinaryExpr";
+  | "BinaryExpr"
+  | "StringLiteral";
 
 // Statements (doth not result in a value at runtime)...
 export interface Stmt {
@@ -113,4 +114,9 @@ export interface Property extends Expr {
 export interface ObjectLiteral extends Expr {
   kind: "ObjectLiteral";
   properties: Property[];
+}
+
+export interface StringLiteral extends Expr {
+  kind: "StringLiteral";
+  value: string;
 }
