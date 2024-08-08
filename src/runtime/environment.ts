@@ -15,7 +15,10 @@ import {
   makeObject,
   makeString,
 } from "./values";
-
+import Parser from "../frontend/parser";
+import path from "path";
+import fs from "fs";
+import { interpret } from "./interpreter";
 function timeFunction(args: RuntimeVal[], env: Environment): RuntimeVal {
   return makeNum(Date.now());
 }
@@ -89,6 +92,28 @@ export function createGlobalEnv(): Environment {
         throw new Error(`Thy number proves itself a whimsical fool!: ${input}`);
       }
       return makeNum(res);
+    }),
+    true
+  );
+
+  // Addeth Another file...
+  env.declareVar(
+    "import",
+    makeNativeFn((args) => {
+      // Go to main folder (shakespeare++)
+      const filePath = path.dirname(path.dirname(__dirname)) + "/" + (args[0] as StringVal).value;
+
+      let input;
+      // change .txt to .spp
+      if (filePath.endsWith(".spp")) {
+        input = fs.readFileSync(filePath, "utf-8");
+      } else {
+        throw new Error("Lo, this file doth not bear the mark of the sacred .spp!: " + path);
+      }
+      const parser = new Parser();
+      const program = parser.produceAST(input);
+
+      return interpret(program, env);
     }),
     true
   );
