@@ -5,11 +5,12 @@ import {
   Program,
   Stmt,
   VarDeclaration,
+  ArrDeclaration,
   WhileStatement,
 } from "../../frontend/ast";
 import Environment from "../environment";
 import { interpret } from "../interpreter";
-import { RuntimeVal, NullVal, makeNull, BoolVal, FunctionVal } from "../values";
+import { RuntimeVal, NullVal, makeNull, BoolVal, FunctionVal, makeArray } from "../values";
 import { interpretAssignment } from "./expressions";
 
 export function interpretProgram(program: Program, env: Environment): RuntimeVal {
@@ -26,6 +27,21 @@ export function interpretProgram(program: Program, env: Environment): RuntimeVal
 export function interpretVarDeclaration(declaration: VarDeclaration, env: Environment): RuntimeVal {
   const val = declaration.value ? interpret(declaration.value, env) : makeNull();
   return env.declareVar(declaration.identifier, val, declaration.constant);
+}
+
+export function interpretArrDeclaration(declaration: ArrDeclaration, env: Environment): RuntimeVal {
+  let variable: RuntimeVal = makeNull();
+
+  // array name will contain its first value...
+  let val = declaration.values[0] ? interpret(declaration.values[0], env) : makeNull();
+  env.declareVar(declaration.identifier, makeArray(declaration.identifier, val), declaration.constant);
+
+  for (let i = 0; i < declaration.values.length; ++i) {
+    const val = declaration.values[i] ? interpret(declaration.values[i], env) : makeNull();
+    env.declareVar(i + declaration.identifier, val, declaration.constant);
+  }
+
+  return makeNull();
 }
 
 export function interpretFnDeclaration(declaration: FnDeclaration, env: Environment): RuntimeVal {

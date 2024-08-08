@@ -2,6 +2,7 @@ export type NodeType =
   // Statements...
   | "Program"
   | "VarDeclaration"
+  | "ArrDeclaration"
   | "IfStatement"
   | "ForStatement"
   | "WhileStatement"
@@ -36,6 +37,13 @@ export interface VarDeclaration extends Stmt {
   constant: boolean;
   identifier: string;
   value?: Expr; // can be Expr or undefined..
+}
+
+export interface ArrDeclaration extends Expr {
+  kind: "ArrDeclaration";
+  constant: boolean;
+  identifier: string;
+  values: Expr[];
 }
 
 export interface IfStatement extends Stmt {

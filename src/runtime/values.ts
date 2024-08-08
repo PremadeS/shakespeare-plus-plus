@@ -1,7 +1,7 @@
 import { Stmt } from "../frontend/ast";
 import Environment from "./environment";
 
-export type ValueType = "null" | "number" | "boolean" | "object" | "native-fn" | "function" | "string";
+export type ValueType = "null" | "number" | "boolean" | "object" | "native-fn" | "function" | "string" | "array";
 
 export interface RuntimeVal {
   type: ValueType;
@@ -41,6 +41,17 @@ export interface StringVal extends RuntimeVal {
 }
 export function makeString(str: string): RuntimeVal {
   return { type: "string", value: str } as StringVal;
+}
+
+//Array...
+export interface ArrayVal extends RuntimeVal {
+  type: "array";
+  identifier: string;
+  value: RuntimeVal;
+}
+
+export function makeArray(str: string, val: RuntimeVal): RuntimeVal {
+  return { type: "array", identifier: str, value: val } as ArrayVal;
 }
 
 //Object...

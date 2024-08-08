@@ -17,6 +17,7 @@ import {
   WhileStatement,
   FnDeclaration,
   StringLiteral,
+  ArrDeclaration,
 } from "./ast";
 import { tokenize, Token, TokenType } from "./lexer";
 
@@ -123,6 +124,9 @@ export default class Parser {
       this.next(); // Skipping terminator...
       return { kind: "VarDeclaration", constant: false, identifier: identifer } as VarDeclaration;
     }
+    if (this.at().type == TokenType.OpenBracket) {
+      return this.parseArrDeclaration(identifer, isConstant);
+    }
 
     this.expect(TokenType.Equals, "Syntax mistake forgetting 'equivalethTo' respectfully");
 
@@ -132,6 +136,23 @@ export default class Parser {
       identifier: identifer,
       value: this.parseStmt(),
     } as VarDeclaration;
+
+    this.expect(TokenType.Terminator, "Syntax mistake forgetting 'withUtmostRespect' respectfully");
+
+    return declaration;
+  }
+
+  private parseArrDeclaration(identifer: string, isConstant: boolean): Stmt {
+    this.next();
+    this.expect(TokenType.CloseBracket, "Syntax mistake forgetting ']' respectfully");
+    this.expect(TokenType.Equals, "Syntax mistake forgetting 'equivalethTo' respectfully");
+
+    const declaration = {
+      kind: "ArrDeclaration",
+      constant: isConstant,
+      identifier: identifer,
+      values: this.parseBlockExpr(),
+    } as ArrDeclaration;
 
     this.expect(TokenType.Terminator, "Syntax mistake forgetting 'withUtmostRespect' respectfully");
 
@@ -215,6 +236,18 @@ export default class Parser {
     const body = this.parseBlockStmt();
 
     return { kind: "FnDeclaration", name, parameters, body } as FnDeclaration;
+  }
+
+  private parseBlockExpr(): Expr[] {
+    this.expect(TokenType.OpenBrace, "Syntax mistake forgetting '{' respectfully");
+    const body: Expr[] = [];
+
+    while (!this.eof() && this.at().type != TokenType.CloseBrace) {
+      body.push(this.parseExpr());
+    }
+
+    this.expect(TokenType.CloseBrace, "Syntax mistake forgetting '}' respectfully");
+    return body;
   }
 
   private parseBlockStmt(): Stmt[] {
@@ -357,7 +390,7 @@ export default class Parser {
   private parseMemberExpr(): Expr {
     let object: Expr = this.parsePrimaryExpr();
 
-    while (this.at().type == TokenType.Dot || this.at().type == TokenType.OpenBracket) {
+    while (this.at().type == TokenType.Dot) {
       const operator = this.next();
       let property: Expr;
       let computed: boolean;
@@ -371,9 +404,7 @@ export default class Parser {
           throw new Error("Thou canst not use the fullStop without a merry Identifier!");
         }
       } else {
-        computed = true;
-        property = this.parseExpr();
-        this.expect(TokenType.CloseBracket, "Syntax mistake forgetting ']' respectfully.");
+        throw new Error("Anticipating '.' respectfully.");
       }
       object = { kind: "MemberExpr", object, property, computed } as MemberExpr;
     }

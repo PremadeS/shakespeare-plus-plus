@@ -14,9 +14,12 @@ import {
   CallExpr,
   FnDeclaration,
   StringLiteral,
+  ArrDeclaration,
+  MemberExpr,
 } from "../frontend/ast";
 import Environment from "./environment";
 import {
+  interpretArrDeclaration,
   interpretFnDeclaration,
   interpretForStmt,
   interpretIfStmt,
@@ -30,6 +33,7 @@ import {
   interpretObjectExpr,
   interpretAssignment,
   interpretBinaryExpr,
+  interpretMemberExpr,
 } from "./eval/expressions";
 
 export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
@@ -49,6 +53,9 @@ export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
     case "CallExpr":
       return interpretCallExpr(astNode as CallExpr, env);
 
+    case "MemberExpr":
+      return interpretMemberExpr(env, undefined, astNode as MemberExpr);
+
     case "BinaryExpr":
       return interpretBinaryExpr(astNode as BinaryExpr, env);
 
@@ -60,6 +67,9 @@ export function interpret(astNode: Stmt, env: Environment): RuntimeVal {
 
     case "VarDeclaration":
       return interpretVarDeclaration(astNode as VarDeclaration, env);
+
+    case "ArrDeclaration":
+      return interpretArrDeclaration(astNode as ArrDeclaration, env);
 
     case "FnDeclaration":
       return interpretFnDeclaration(astNode as FnDeclaration, env);

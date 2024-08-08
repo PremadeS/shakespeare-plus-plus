@@ -1,4 +1,4 @@
-import { AssignmentExpr, BinaryExpr, CallExpr, Identifier, ObjectLiteral } from "../../frontend/ast";
+import { AssignmentExpr, BinaryExpr, CallExpr, Identifier, MemberExpr, ObjectLiteral } from "../../frontend/ast";
 import { TokenType } from "../../frontend/lexer";
 import Environment from "../environment";
 import { interpret } from "../interpreter";
@@ -15,9 +15,10 @@ import {
   FunctionVal,
   StringVal,
   makeString,
+  ArrayVal,
 } from "../values";
 
-function interpretNumBinaryExpr(left: RuntimeVal, right: RuntimeVal, operator: string): RuntimeVal {
+function interpretNumBinaryExpr(left: RuntimeVal, right: RuntimeVal, operator: string, env: Environment): RuntimeVal {
   if (operator == "&") {
     if (left.type != "boolean" || right.type != "boolean") {
       return makeBool(false);
@@ -38,6 +39,13 @@ function interpretNumBinaryExpr(left: RuntimeVal, right: RuntimeVal, operator: s
     }
   }
 
+  if (left.type == "array" && right.type == "number" && operator == "+") {
+    const varName = env.lookupVar((right as NumVal).value + (left as ArrayVal).identifier);
+    if (varName == undefined) {
+      throw new Error(`Thou seekest an index ${(right as NumVal).value} that dwelleth not within this array’s bounds!`);
+    }
+    return varName;
+  }
   if (left.type == "null" || right.type == "null") {
     throw new Error(
       `Alas! One cannot engage in binary antics with naught but null! ${JSON.stringify(
@@ -179,10 +187,13 @@ export function interpretBinaryExpr(binop: BinaryExpr, env: Environment): Runtim
   const left = interpret(binop.left, env);
   const right = interpret(binop.right, env);
 
-  return interpretNumBinaryExpr(left as NumVal, right as NumVal, binop.operator);
+  return interpretNumBinaryExpr(left as NumVal, right as NumVal, binop.operator, env);
 }
 
 export function interpretAssignment(node: AssignmentExpr, env: Environment): RuntimeVal {
+  if (node.assignee.kind === "MemberExpr") {
+    return interpretMemberExpr(env, node);
+  }
   if (node.assignee.kind !== "Identifier") {
     throw new Error(
       `Thou hath committed an unworthy deed: an invalid assignation unto ${JSON.stringify(node.assignee)}.`
@@ -191,4 +202,15 @@ export function interpretAssignment(node: AssignmentExpr, env: Environment): Run
 
   const varName: string = (node.assignee as Identifier).symbol;
   return env.assignVar(varName, interpret(node.value, env));
+}
+
+export function interpretMemberExpr(env: Environment, node?: AssignmentExpr, expr?: MemberExpr): RuntimeVal {
+  if (expr) {
+    return env.lookupObject(expr);
+  }
+  if (node) {
+    return env.lookupObject(node.assignee as MemberExpr, interpret(node.value, env));
+  }
+
+  throw new Error("Thou canst not evaluate a member expression without a rightful member or assignment!");
 }

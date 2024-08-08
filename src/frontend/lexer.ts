@@ -222,10 +222,20 @@ export function tokenize(source: string): Token[] {
           throw new Error("syntax mistake forgetting '\"' respectfully.");
         }
         tokens.push(token(TokenType.String, identifer));
+      } else if (isNumber(src[pos])) {
+        let num: string = src[pos];
+        ++pos;
+        while (pos < src.length && isNumber(src[pos])) {
+          num += src[pos];
+          ++pos;
+        }
+        tokens.push(token(TokenType.Number, num));
+        --pos;
       } else if (isAlphabet(src[pos])) {
+        // Identifier canst not start with number....
         let identifier: string = src[pos];
         ++pos;
-        while (pos < src.length && isAlphabet(src[pos])) {
+        while (pos < src.length && (isAlphabet(src[pos]) || isNumber(src[pos]))) {
           identifier += src[pos];
           ++pos;
         }
@@ -256,15 +266,6 @@ export function tokenize(source: string): Token[] {
         } else {
           tokens.push(token(TokenType.Identifier, identifier));
         }
-        --pos;
-      } else if (isNumber(src[pos])) {
-        let num: string = src[pos];
-        ++pos;
-        while (pos < src.length && isNumber(src[pos])) {
-          num += src[pos];
-          ++pos;
-        }
-        tokens.push(token(TokenType.Number, num));
         --pos;
       } else {
         console.error("Unseen token hath appeared: ", src[pos]);

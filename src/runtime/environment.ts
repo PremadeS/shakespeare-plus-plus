@@ -1,4 +1,17 @@
-import { BoolVal, NumVal, ObjectVal, RuntimeVal, StringVal, makeBool, makeNativeFn, makeNull, makeNum } from "./values";
+import { Identifier, MemberExpr } from "../frontend/ast";
+import { interpret } from "./interpreter";
+import {
+  ArrayVal,
+  BoolVal,
+  NumVal,
+  ObjectVal,
+  RuntimeVal,
+  StringVal,
+  makeBool,
+  makeNativeFn,
+  makeNull,
+  makeNum,
+} from "./values";
 
 function timeFunction(args: RuntimeVal[], env: Environment): RuntimeVal {
   return makeNum(Date.now());
@@ -26,11 +39,13 @@ function printFunction(args: RuntimeVal[], env: Environment): RuntimeVal {
         result += (args[i] as StringVal).value;
         break;
       case "object":
-        result += (args[i] as ObjectVal).properties;
+        for (const prop of (args[i] as ObjectVal).properties) {
+          result += JSON.stringify(prop) + "\n";
+        }
         break;
 
       default:
-        console.log(args[i]);
+        console.log(JSON.stringify(args[i]));
         break;
     }
   }
@@ -48,8 +63,8 @@ export function createGlobalEnv(): Environment {
   //Maketh Native built-in functions...
   //Print...
   env.declareVar("printethThouWordsForAllToSee", makeNativeFn(printFunction), true);
-  //Current Time...
 
+  //Current Time...
   env.declareVar("revealThyTime", makeNativeFn(timeFunction), true);
 
   return env;
@@ -104,5 +119,37 @@ export default class Environment {
     }
 
     return this.parent.resolve(varName);
+  }
+
+  public lookupObject(expr: MemberExpr, value?: RuntimeVal, property?: Identifier): RuntimeVal {
+    let pastVal: any = {} as RuntimeVal;
+    if (expr.object.kind === "MemberExpr") {
+      pastVal = this.lookupObject(
+        expr.object as MemberExpr,
+        undefined,
+        (expr.object as MemberExpr).property as Identifier
+      );
+    } else {
+      const varname = (expr.object as Identifier).symbol;
+      const env = this.resolve(varname);
+
+      pastVal = env.variables.get(varname);
+    }
+
+    switch (pastVal.type) {
+      case "object": {
+        const currentProp = (expr.property as Identifier).symbol;
+        const prop = property ? property.symbol : currentProp;
+
+        if (value) (pastVal as ObjectVal).properties.set(prop, value);
+
+        if (currentProp) pastVal = (pastVal as ObjectVal).properties.get(currentProp) as ObjectVal;
+
+        return pastVal;
+      }
+
+      default:
+        throw "Alas, the type thou seekest is beyond my ken!: " + pastVal.type;
+    }
   }
 }
