@@ -25,6 +25,9 @@ export enum TokenType {
   Less, //                <
   GreaterThanEqual, //    >=
   LessThanEqual, //       <=
+  Quote, //               "
+  StartComments, //       /*
+  EndComments, //         */
 
   Const,
   Granteth,
@@ -59,15 +62,17 @@ const KEYWORDS: Record<string, TokenType> = {
   "`notEquivalethTo`": TokenType.NotEqualTo, //                     !=
   "`greaterThanThou`": TokenType.Greater, //                        >
   "`lessThanThou`": TokenType.Less, //                              <
-  "`greaterThanEquivalethToThou`": TokenType.GreaterThanEqual, //        >=
-  "`lessThanEquivalethToThou`": TokenType.LessThanEqual, //              <=
-  steadFast: TokenType.Const, //                                    constant
+  "`greaterThanEquivalethToThou`": TokenType.GreaterThanEqual, //   >=
+  "`lessThanEquivalethToThou`": TokenType.LessThanEqual, //         <=
+  steadFast: TokenType.Const, //                                    Constant
 
-  providethThouFindestThyConditionTrue: TokenType.If,
-  elsewiseRunnethThis: TokenType.Else,
-  forsoothCyclethThroughThyRange: TokenType.For,
-  whilstThouConditionHolds: TokenType.While,
-  fn: TokenType.Fn,
+  providethThouFindestThyConditionTrue: TokenType.If, //            If
+  elsewiseRunnethThis: TokenType.Else, //                           Else
+  forsoothCyclethThroughThyRange: TokenType.For, //                 For
+  whilstThouConditionHolds: TokenType.While, //                     While
+  summonThouMechanism: TokenType.Fn, //                             Fn
+  scribeThyThoughtsInSecretLines: TokenType.StartComments,
+  endethSecretLines: TokenType.EndComments,
 };
 
 // Maketh Token
@@ -137,6 +142,12 @@ function translateOperation(str: string): string {
       return "for";
     case "whilstThouConditionHolds":
       return "while";
+    case "summonThouMechanism":
+      return "fn";
+    case "scribeThyThoughtsInSecretLines": //start comments...
+      return "/*";
+    case "endethSecretLines": // end comments...
+      return "*/";
     case "steadFast":
       return "const";
     default:
@@ -191,7 +202,28 @@ export function tokenize(source: string): Token[] {
           ++pos;
         }
         const reserved = KEYWORDS[identifier];
-        if (reserved != undefined) {
+        // Check for comments...
+        if (reserved == TokenType.StartComments) {
+          let tokens: TokenType;
+          do {
+            let ident: string = "";
+            if (isWhiteSpace(src[pos])) {
+              while (pos < src.length && isWhiteSpace(src[pos])) {
+                ++pos;
+              }
+              while (pos < src.length && isAlphabet(src[pos])) {
+                ident += src[pos];
+                ++pos;
+              }
+            } else {
+              ++pos;
+            }
+            tokens = KEYWORDS[ident];
+          } while (pos < src.length && tokens != TokenType.EndComments);
+          if (tokens != TokenType.EndComments) {
+            throw new Error("Syntax mistake forgetting 'endethScretLines' respectfully.");
+          }
+        } else if (reserved != undefined) {
           tokens.push(token(KEYWORDS[identifier], translateOperation(identifier)));
         } else {
           tokens.push(token(TokenType.Identifier, identifier));
