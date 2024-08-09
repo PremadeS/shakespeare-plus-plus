@@ -304,7 +304,7 @@ export default class Parser {
 
       // {key: val}
       this.expect(TokenType.Colon, "Syntax mistake forgetting 'summonThyColon' respectfully");
-      const value = this.parseExpr();
+      const value = this.parseStmt();
 
       properties.push({ kind: "Property", key, value });
       if (this.at().type != TokenType.CloseBrace) {

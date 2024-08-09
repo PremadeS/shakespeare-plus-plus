@@ -98,13 +98,12 @@ export function createGlobalEnv(): Environment {
 
   // Addeth Another file...
   env.declareVar(
-    "import",
+    "summonYonFile",
     makeNativeFn((args) => {
       // Go to main folder (shakespeare++)
       const filePath = path.dirname(path.dirname(__dirname)) + "/" + (args[0] as StringVal).value;
 
       let input;
-      // change .txt to .spp
       if (filePath.endsWith(".spp")) {
         input = fs.readFileSync(filePath, "utf-8");
       } else {

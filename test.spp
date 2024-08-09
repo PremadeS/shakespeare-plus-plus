@@ -1,0 +1,7 @@
+forsoothCyclethThroughThyRange(
+      granteth yonder i equivalethTo 1 withUtmostRespect
+      i `lessThanThou` 10 withUtmostRespect
+      i equivalethTo i addethPolitelyWith 1 withUtmostRespect ){
+        printethThouWordsForAllToSee(i)
+        printethThouWordsForAllToSee("\n")
+      }

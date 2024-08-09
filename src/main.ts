@@ -11,7 +11,7 @@ async function run() {
   const parser = new Parser();
   const env = createGlobalEnv();
 
-  const input = readFileSync("test.txt", "utf-8");
+  const input = readFileSync("test.spp", "utf-8");
 
   // Parse...
   let program: Program = parser.produceAST(input);
