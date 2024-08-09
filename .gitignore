@@ -1,5 +1,4 @@
 node_modules
-test.txt
-syntax.txt
-temp.txt
-temp.spp
+*.txt
+*.spp
+dist

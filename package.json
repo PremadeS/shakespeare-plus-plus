@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "spp": "npm run build && node dist/main.js",
+    "global": "npm run build && npm install -g .  && npm link && node add-shebang.js "
   },
   "keywords": [],
   "author": "",
@@ -17,5 +19,8 @@
   "dependencies": {
     "prompt-sync": "^4.2.0",
     "readline-sync": "^1.4.10"
+  },
+  "bin": {
+    "spp": "./dist/main.js"
   }
 }
