@@ -1,0 +1,5 @@
+src/
+tsconfig.json
+add-shebang.js
+node_modules/
+.gitignore

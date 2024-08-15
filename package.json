@@ -1,16 +1,15 @@
 {
-  "name": "shakes-plus-plus",
+  "name": "shakespeareplusplus",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "spp": "npm run build && node dist/main.js",
-    "global": "npm run build && npm install -g .  && npm link && node add-shebang.js "
+    "spp": "npm run build && node dist/main.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "Apache 2.0",
   "devDependencies": {
     "@types/node": "^22.1.0",
     "@types/prompt-sync": "^4.2.3",
@@ -21,6 +20,6 @@
     "readline-sync": "^1.4.10"
   },
   "bin": {
-    "spp": "./dist/main.js"
+    "shakespeare++": "./dist/main.js"
   }
 }
