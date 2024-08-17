@@ -7,7 +7,7 @@ import { readFileSync } from "fs";
 import path from "path";
 main();
 
-function getFilePath(userInput: string): string {
+export function getFilePath(userInput: string): string {
   if (path.isAbsolute(userInput)) {
     return userInput;
   }

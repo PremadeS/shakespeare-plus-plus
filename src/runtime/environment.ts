@@ -1,6 +1,6 @@
 import { Identifier, MemberExpr } from "../frontend/ast";
 import * as readLineSync from "readline-sync";
-
+import { getFilePath } from "../main";
 import {
   ArrayVal,
   BoolVal,
@@ -101,7 +101,7 @@ export function createGlobalEnv(): Environment {
     "summonYonFile",
     makeNativeFn((args) => {
       // Go to main folder (shakespeare++)
-      const filePath = path.dirname(path.dirname(__dirname)) + "/" + (args[0] as StringVal).value;
+      const filePath = getFilePath((args[0] as StringVal).value);
 
       let input;
       if (filePath.endsWith(".spp")) {
