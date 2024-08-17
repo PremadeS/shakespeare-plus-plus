@@ -1,3 +1,4 @@
+#!usr/bin/env node
 import { Program } from "./frontend/ast";
 import Parser from "./frontend/parser";
 import { createGlobalEnv } from "./runtime/environment";
