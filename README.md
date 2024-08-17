@@ -105,9 +105,9 @@ arr addethPolitelyWith 1
 ### Function
 
 ```bash
-summonThouMechanism function(parameter1 invokeThouComma parameter2...){
-<statements>
-<last statement will automatically be returned
+summonThouMechanism function(parameter1 invokeThouComma parameter2...) {
+	<statements>
+	<last statement will automatically be returned
 }
 ```
 
@@ -115,19 +115,19 @@ summonThouMechanism function(parameter1 invokeThouComma parameter2...){
 
 ```bash
 summonThouMechanism sum(x invokeThouComma y){
-x addethPolitelyWith y
+	x addethPolitelyWith y
 }
 ```
 
 ### Object initialization
 
-```bash
+```dart
 granteth yonder obj equivalethTo {
-shake summonThyColon 10 invokeThouComma
-speare summonThyColon "plusplus" invokeThouComma
-sum summonThyColon summonThouMechanism s(x invokeThouComma y){
-x addethPolitelyWith y
-} 
+	shake summonThyColon 10 invokeThouComma
+	speare summonThyColon "plusplus" invokeThouComma
+	sum summonThyColon summonThouMechanism s(x invokeThouComma y) {
+		x addethPolitelyWith y
+	} 
 } withUtmostRespect
 
 printethThouWordsForAllToSee(obj fullethStop shake)
@@ -141,10 +141,10 @@ printethThouWordsForAllToSee(obj fullethStop sum(10 invokeThouComma 20))
 
 ```bash
 forsoothCyclethThroughThyRange(
-granteth yonder i equivalethTo 0 withUtmostRespect
-i `lessThanThou` 10 withUtmostRespect
-i equivalethTo i addethPolitelyWith 1 withUtmostRespect){
-<statements>
+    granteth yonder i equivalethTo 0 withUtmostRespect
+    i `lessThanThou` 10 withUtmostRespect
+    i equivalethTo i addethPolitelyWith 1 withUtmostRespect) {
+	<statements>
 }
 ```
 
@@ -153,42 +153,42 @@ i equivalethTo i addethPolitelyWith 1 withUtmostRespect){
 ### While Loop
 
 ```bash
-whilstThouConditionHolds(*condition*){
-<statements>
+whilstThouConditionHolds(*condition*) {
+	<statements>
 }
 ```
 
 ### If Statement
 
 ```bash
-providethThouFindestThyConditionTrue(*condition*){
-<statements>
+providethThouFindestThyConditionTrue(*condition*) {
+	<statements>
 }
 ```
 
 ### Else Statement
 
 ```bash
-elsewiseRunnethThis{
-<statements>
+elsewiseRunnethThis {
+	<statements>
 }
 ```
 
 ### If Else Statement
 ```bash
-providethThouFindestThyConditionTrue(*condition*){
-<statements>
-} elsewiseRunnethThis{
-<statements>
+providethThouFindestThyConditionTrue(*condition*) {
+	<statements>
+} elsewiseRunnethThis {
+	<statements>
 }
 ```
 
 ### If Else If Statement
 ```bash
-providethThouFindestThyConditionTrue(*condition*){
-<statements>
-} elsewiseRunnethThis providethThouFindestThyConditionTrue(*condition*){
-<statements>
+providethThouFindestThyConditionTrue(*condition*) {
+	<statements>
+} elsewiseRunnethThis providethThouFindestThyConditionTrue(*condition*) {
+	<statements>
 }
 ```
 
